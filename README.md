@@ -1,4 +1,4 @@
-![logo](/src/main/resources/assets/homabric/icon.png)
+![logo](/src/main/resources/assets/homabric/icon.png | width=128)
 
 # 🏠 Homabric
 > ⚠️This mod is in early stage of development, you can use all functions that are listed below, but they may be changed in future. Code quality might be very poor sometimes and it will be improved in future.
