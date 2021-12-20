@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "homabric",
+  "version": "${version}",
+  "name": "Homabric",
+  "description": "Little yet powerful home management mod that works on server or client.",
+  "authors": [
+    "Rogi27"
+  ],
+  "contact": {
+    "sources": "https://github.com/rogi27/homabric"
+  },
+  "license": "LGPLv3",
+  "icon": "assets/homabric/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "space.rogi27.homabric.Homabric"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.11.3",
+    "minecraft": ">=1.18",
+    "java": ">=17",
+    "fabric": "*"
+  }
+}
