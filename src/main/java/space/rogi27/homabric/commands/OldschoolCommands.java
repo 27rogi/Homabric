@@ -53,7 +53,7 @@ public class OldschoolCommands {
                                 )
                         ));
             });
-            Homabric.LOGGER.info("Oldschool commands enabled!");
+            Homabric.LOGGER.info("[Homabric:INFO] Oldschool commands enabled!");
         }
     }
 }

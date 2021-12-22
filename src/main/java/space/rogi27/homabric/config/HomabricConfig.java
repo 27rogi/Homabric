@@ -5,6 +5,7 @@ import me.lortseam.completeconfig.api.ConfigEntry;
 import me.lortseam.completeconfig.api.ConfigGroup;
 import me.lortseam.completeconfig.data.Config;
 import space.rogi27.homabric.Homabric;
+import space.rogi27.homabric.utils.HomePermissionObject;
 import space.rogi27.homabric.utils.PlayerObject;
 
 import java.util.HashMap;
@@ -17,13 +18,18 @@ public class HomabricConfig extends Config implements ConfigContainer {
 
     @Transitive
     public static class Config implements ConfigGroup {
-        @ConfigEntry(comment = "Do not touch this value, it allows mod to \ncheck if config file is outdated or not")
-        private static int configVersion = 1;
+        @ConfigEntry(comment = "Do not touch this value, it allows mod to \ncheck if config file is outdated or not.")
+        private static int configVersion = 2;
         @ConfigEntry(comment = "This option enables alternative command variants like /sethome, /removehome and etc.")
         private static boolean enableOldschoolCommands = true;
-        @ConfigEntry(comment = "Sets the maximum amount of homes per player")
-        private static int maxHomes = 2;
-        @ConfigEntry(comment = "List of players with their homes")
+        @ConfigEntry(comment = "Sets the maximum amount of homes per player.")
+        private static int homesLimit = 2;
+        @ConfigEntry(comment = "You can define permissions that will override home limit for the players if they have them." +
+                "\nPermission names are transformed to permissions like 'homabric.homelimit.<permissionName>'" +
+                "\nExample permission: vip: { max-homes=6 }")
+        private static Map<String, HomePermissionObject> permissionsHomeLimit = new HashMap<>();
+
+        @ConfigEntry(comment = "List of players with their homes.")
         private static Map<String, PlayerObject> players = new HashMap<>();
 
         public static int getConfigVersion() {
@@ -34,8 +40,12 @@ public class HomabricConfig extends Config implements ConfigContainer {
             return enableOldschoolCommands;
         }
 
-        public static int maxHomes() {
-            return maxHomes;
+        public static int homesLimit() {
+            return homesLimit;
+        }
+
+        public static Map<String, HomePermissionObject> getPermissionsHomeLimit() {
+            return permissionsHomeLimit;
         }
 
         public static PlayerObject getPlayer(String name) {

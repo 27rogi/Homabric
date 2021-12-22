@@ -11,7 +11,7 @@
   "text.homabric.disallowed": "Вы запретили доступ к %s для %s",
   "text.homabric.gui_lore_allowed": "Имеют доступ: %s",
   "text.homabric.gui_lore_world": "Мир: %s",
-  "text.homabric.gui_title": "Список домов у %s",
+  "text.homabric.gui_title": "Дома игрока %s [%s / %s]",
   "text.homabric.home_limit_reached": "Вы достигли лимита домов!",
   "text.homabric.home_location_updated": "Изменена локация дома с названием %s",
   "text.homabric.home_removed": "Удален дом с названием %s",

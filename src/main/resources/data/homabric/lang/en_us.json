@@ -11,7 +11,7 @@
   "text.homabric.disallowed": "You restricted access to %s for %s",
   "text.homabric.gui_lore_allowed": "Allowed: %s",
   "text.homabric.gui_lore_world": "World: %s",
-  "text.homabric.gui_title": "Home list of %s",
+  "text.homabric.gui_title": "Homes of %s [%s / %s]",
   "text.homabric.home_location_updated": "Changed location for home with name %s",
   "text.homabric.home_removed": "Removed home with name %s",
   "text.homabric.icon_changed": "Changed icon for %s to %s",

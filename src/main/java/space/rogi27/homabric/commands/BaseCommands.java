@@ -223,7 +223,7 @@ public class BaseCommands {
         }
 
         PlayerObject player = HomabricConfig.Config.getOrCreatePlayer(context.getSource().getName());
-        if(player.isLimitReached()) {
+        if(player.isLimitReached(context.getSource())) {
             context.getSource().sendFeedback(new TranslatableText("text.homabric.home_limit_reached").formatted(Formatting.RED), false);
             return 1;
         }

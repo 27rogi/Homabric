@@ -15,8 +15,9 @@ public class Homabric implements ModInitializer {
     @Override
     public void onInitialize() {
         config.load();
-        if(HomabricConfig.Config.getConfigVersion() != 1) {
-            LOGGER.error("[Homabric:ERROR] You have outdated configuration file, be sure to update it to new version!");
+        if(HomabricConfig.Config.getConfigVersion() != 2) {
+            LOGGER.warn("[Homabric:ERROR] You have outdated configuration file, be sure to update it to new version!" +
+                    "\nhttps://github.com/rogi27/Homabric/blob/main/README.md#configuration");
         }
 
         BaseCommands.init();

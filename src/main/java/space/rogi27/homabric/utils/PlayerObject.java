@@ -4,6 +4,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.elements.GuiElementInterface;
 import eu.pb4.sgui.api.gui.SimpleGui;
+import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -43,8 +44,42 @@ public class PlayerObject {
         return homes.get(homeName);
     }
 
-    public boolean isLimitReached() {
-        return this.homes.size() >= HomabricConfig.Config.maxHomes();
+    // TODO: Find better and efficient way for checking permissions
+    // Maybe use groups instead?
+    public boolean isLimitReached(ServerCommandSource player) {
+        AtomicInteger homesLimit = new AtomicInteger(-1);
+        HomabricConfig.Config.getPermissionsHomeLimit().forEach((key, permissionObject) -> {
+            if(Permissions.check(player, "homabric.homelimit."+key)) {
+                if (homesLimit.get() < permissionObject.maxHomes) {
+                    homesLimit.set(permissionObject.maxHomes);
+                }
+            }
+        });
+        // If player still has -1 limit then it means that he has no special permissions
+        // set for home limit, and we should return default home value.
+        // We don't use 0 because if owner needs to set home limit for some group to 0 it will cause troubles.
+        if(homesLimit.get() == -1) {
+            return this.homes.size() >= HomabricConfig.Config.homesLimit();
+        }
+        return this.homes.size() >= homesLimit.get();
+    }
+
+    public int getHomeLimit(ServerCommandSource player) {
+        AtomicInteger homesLimit = new AtomicInteger(-1);
+        HomabricConfig.Config.getPermissionsHomeLimit().forEach((key, permissionObject) -> {
+            if(Permissions.check(player, "homabric.homelimit."+key)) {
+                if (homesLimit.get() < permissionObject.maxHomes) {
+                    homesLimit.set(permissionObject.maxHomes);
+                }
+            }
+        });
+        // If player still has -1 limit then it means that he has no special permissions
+        // set for home limit, and we should return default home value.
+        // We don't use 0 because if owner needs to set home limit for some group to 0 it will cause troubles.
+        if(homesLimit.get() == -1) {
+            return HomabricConfig.Config.homesLimit();
+        }
+        return homesLimit.get();
     }
 
     public HomeCreationResult createOrUpdateHome(ServerCommandSource player, String homeName) throws CommandSyntaxException {
@@ -104,7 +139,11 @@ public class PlayerObject {
         });
 
         gui.setLockPlayerInventory(true);
-        gui.setTitle(new TranslatableText("text.homabric.gui_title", new LiteralText(source.getName()).formatted(Formatting.DARK_GREEN)));
+        gui.setTitle(new TranslatableText("text.homabric.gui_title",
+                new LiteralText(source.getName()).formatted(Formatting.DARK_BLUE),
+                new LiteralText(String.valueOf(this.homes.size())),
+                new LiteralText(String.valueOf(this.getHomeLimit(source))).formatted(Formatting.DARK_BLUE)
+        ));
         return gui;
     }
 
