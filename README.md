@@ -3,7 +3,7 @@
 
 # Homabric
 
-## Little yet powerful home management mod for Fabric
+### Little yet powerful home management mod for Fabric
 
 <img src="https://cf.way2muchnoise.eu/full_homabric_downloads.svg?badge_style=for_the_badge" />
 <img src="https://cf.way2muchnoise.eu/versions/homabric.svg?badge_style=for_the_badge" />

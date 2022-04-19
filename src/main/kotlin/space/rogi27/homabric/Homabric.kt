@@ -10,22 +10,22 @@ import space.rogi27.homabric.commands.ClassicCommands
 import space.rogi27.homabric.config.HomabricConfig
 import space.rogi27.homabric.config.HomesConfig
 
-class Homabric : ModInitializer {
+class Homabric:ModInitializer {
     override fun onInitialize() {
         config.load()
         homesConfig.load()
-
+        
         BaseCommands.init()
         AdminCommands.init()
         ClassicCommands.init()
     }
-
+    
     companion object {
         @JvmField
         var logger: Logger = LogManager.getLogger("Homabric")
         val config: Config = Config("homabric", arrayOf("homabric.config"), HomabricConfig)
         val homesConfig: Config = Config("homabric", arrayOf("homabric.homes"), HomesConfig)
-
+        
         @JvmStatic
         fun reloadConfig() {
             config.save()
