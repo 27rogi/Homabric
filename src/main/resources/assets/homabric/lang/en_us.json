@@ -16,12 +16,15 @@
   "text.homabric.home_removed": "Removed home with name %s",
   "text.homabric.icon_changed": "Changed icon for %s to %s",
   "text.homabric.new_home_created": "Created new home with name %s",
-  "text.homabric.home_limit_reached": "You reached home limit!",
-  "text.homabric.no_home": "There is no such home!",
+  "text.homabric.home_limit_reached": "You reached a home limit!",
+  "text.homabric.no_home": "You do not have home with this name!",
   "text.homabric.no_homes": "You do not have any homes yet!",
   "text.homabric.no_home_access": "You don't have access to this home!",
   "text.homabric.no_icon": "This icon does not exist!",
   "text.homabric.no_player_disallow": "This player doesn't have access to your home!",
   "text.homabric.no_player_exists": "This player doesn't exist!",
-  "text.homabric.teleport_done": "Teleported to %s"
+  "text.homabric.teleport_done": "Teleported to %s",
+  "text.homabric.teleport_canceled": "Your teleportation attempt was canceled because you moved or took damage!",
+  "text.homabric.teleport_in_progress": "You will be teleported in %s",
+  "text.homabric.teleport_already_in": "You already started teleportation!"
 }

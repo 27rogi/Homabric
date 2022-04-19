@@ -15,12 +15,18 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "space.rogi27.homabric.Homabric"
+      {
+        "adapter": "kotlin",
+        "value": "space.rogi27.homabric.Homabric"
+      }
     ]
   },
   "depends": {
-    "fabricloader": ">=0.11.3",
-    "java": ">=17",
-    "fabric": "*"
+    "fabricloader": ">=0.8.7",
+    "fabric": "*",
+    "fabric-language-kotlin": "*"
+  },
+  "suggests": {
+    "fabric-permissions-api-v0": "*"
   }
 }
