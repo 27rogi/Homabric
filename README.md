@@ -5,10 +5,12 @@
 
 ## Little yet powerful home management mod for Fabric
 
-<img src="https://cf.way2muchnoise.eu/full_homabric_downloads.svg?badge_style=for_the_badge">
-<img src="https://cf.way2muchnoise.eu/versions/homabric.svg?badge_style=for_the_badge">
+<img src="https://cf.way2muchnoise.eu/full_homabric_downloads.svg?badge_style=for_the_badge" />
+<img src="https://cf.way2muchnoise.eu/versions/homabric.svg?badge_style=for_the_badge" />
 
-You need to install [Fabric API](https://www.curseforge.com/minecraft/mc-mods/fabric-api).
+
+<a title="Fabric Language Kotlin" href="https://minecraft.curseforge.com/projects/fabric-language-kotlin" target="_blank" rel="noopener noreferrer"><img height="40" src="https://i.imgur.com/c1DH9VL.png" /></a>
+<a title="Fabric API" href="https://minecraft.curseforge.com/projects/fabric-api" target="_blank" rel="noopener noreferrer"><img height="40" src="https://i.imgur.com/Ol1Tcf8.png" /></a>
 </div>
 
 > ⚠️This mod is in early stage of development, you can use all functions that are listed below, but they may be changed in future. Code quality might be very poor sometimes and it will be improved in future.
@@ -20,7 +22,13 @@ You need to install [Fabric API](https://www.curseforge.com/minecraft/mc-mods/fa
 - ⭐ Using GUI for teleportation and viewing all home information.
 - ⭐ Editing home icons for GUI with support for modded items.
 - ⭐ Ability to easily configure the mod and view player locations.
-- ⭐ Teleport cooldown with ability to prevent teleportation if player moved or got damaged.
+- ⭐ Teleport timeout with ability to prevent teleportation if player moved or got damaged.
+
+#### Planned features
+
+- [ ] Ability to define teleport timeout using permissions.
+- [ ] Ability to define `/home` command aliases in config.
+- [ ] Rewrite code for better readability.
 
 ### Languages
 
@@ -30,7 +38,7 @@ You need to install [Fabric API](https://www.curseforge.com/minecraft/mc-mods/fa
 
 ## Commands
 
-You can use ``
+You can use `homabric.teleport.bypass` permission to bypass teleport timeout.
 
 ### Players
 
@@ -139,9 +147,3 @@ players {
 ### Migration from 1.x.x
 
 Due to breaking changes in 2.0.0 you are required to manually edit your config file and move `players` section from original config to new one called `homabric.homes.conf`.
-
-## Planned features
-
-- [x] Home limit can be set via permissions.
-- [ ] Ability to define `/home` command aliases in config.
-- [ ] Code quality improvements.
