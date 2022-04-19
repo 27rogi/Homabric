@@ -186,10 +186,8 @@ object BaseCommands {
         }
         var homeName: String? = "home"
         try {
-            if (context.getArgument(
-                    "home", String::class.java
-                ) != null
-            ) homeName = context.getArgument("home", String::class.java)
+            if (context.getArgument("home", String::class.java) != null)
+                homeName = context.getArgument("home", String::class.java)
         } catch (ex: Exception) {
             Homabric.logger.warn("Using command without name, referencing home")
         }
