@@ -30,6 +30,8 @@ You need to install [Fabric API](https://www.curseforge.com/minecraft/mc-mods/fa
 
 ## Commands
 
+You can use ``
+
 ### Players
 
 - /h **OR** /home `homabric.base.use`
