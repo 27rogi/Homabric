@@ -17,8 +17,9 @@ import net.minecraft.command.argument.IdentifierArgumentType
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.text.LiteralText
-import net.minecraft.text.TranslatableText
+import net.minecraft.text.Text
+import net.minecraft.text.Text.literal
+import net.minecraft.text.Text.translatable
 import net.minecraft.util.Formatting
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
@@ -107,17 +108,17 @@ object BaseCommands {
         val homeName = context.getArgument("home", String::class.java)
         val home: HomeObject? = getOrCreatePlayer(context.source.name).getHome(homeName)
         if (home == null) {
-            context.source.sendFeedback(TranslatableText("text.homabric.no_home").formatted(Formatting.RED), false)
+            context.source.sendFeedback(Text.translatable("text.homabric.no_home").formatted(Formatting.RED), false)
             return 1
         }
         when (home.setIcon(context.getArgument("item", Identifier::class.java))) {
             HomeObject.IconResult.WRONG_ICON -> {
-                context.source.sendFeedback(TranslatableText("text.homabric.no_icon"), false)
+                context.source.sendFeedback(Text.translatable("text.homabric.no_icon"), false)
             }
             HomeObject.IconResult.ICON_SET -> {
                 context.source.sendFeedback(
-                    TranslatableText(
-                        "text.homabric.icon_changed", LiteralText(homeName).formatted(
+                    Text.translatable(
+                        "text.homabric.icon_changed", Text.literal(homeName).formatted(
                             Formatting.WHITE
                         ), Registry.ITEM[context.getArgument(
                             "item", Identifier::class.java
@@ -140,15 +141,15 @@ object BaseCommands {
         val home: HomeObject? = player.getHome(homeName)
         
         if (home == null) {
-            context.source.sendFeedback(TranslatableText("text.homabric.no_home").formatted(Formatting.RED), false)
+            context.source.sendFeedback(Text.translatable("text.homabric.no_home").formatted(Formatting.RED), false)
             return 0
         }
         
         TeleportHelper.runTeleport(context.source.player, fun() {
             home.teleportPlayer(context.source.player)
             context.source.sendFeedback(
-                TranslatableText(
-                    "text.homabric.teleport_done", LiteralText(homeName).formatted(Formatting.WHITE)
+                Text.translatable(
+                    "text.homabric.teleport_done", Text.literal(homeName).formatted(Formatting.WHITE)
                 ).formatted(Formatting.GREEN), false
             )
         })
@@ -164,15 +165,15 @@ object BaseCommands {
         when (result) {
             PlayerObject.TeleportToOtherResult.NO_PLAYER -> {
                 context.source.sendFeedback(
-                    TranslatableText("text.homabric.no_player_exists").formatted(Formatting.RED), false
+                    Text.translatable("text.homabric.no_player_exists").formatted(Formatting.RED), false
                 )
             }
             PlayerObject.TeleportToOtherResult.NO_HOME -> {
-                context.source.sendFeedback(TranslatableText("text.homabric.no_home").formatted(Formatting.RED), false)
+                context.source.sendFeedback(Text.translatable("text.homabric.no_home").formatted(Formatting.RED), false)
             }
             PlayerObject.TeleportToOtherResult.NO_ACCESS -> {
                 context.source.sendFeedback(
-                    TranslatableText("text.homabric.no_home_access").formatted(Formatting.RED), false
+                    Text.translatable("text.homabric.no_home_access").formatted(Formatting.RED), false
                 )
             }
         }
@@ -195,7 +196,7 @@ object BaseCommands {
         if (player != null) {
             if (player.isLimitReached(context.source)) {
                 context.source.sendFeedback(
-                    TranslatableText("text.homabric.home_limit_reached").formatted(Formatting.RED), false
+                    Text.translatable("text.homabric.home_limit_reached").formatted(Formatting.RED), false
                 )
                 return 1
             }
@@ -203,16 +204,16 @@ object BaseCommands {
         val result: PlayerObject.HomeCreationResult? = homeName?.let { player?.createOrUpdateHome(context.source, it) }
         if (result === PlayerObject.HomeCreationResult.HOME_CREATED) {
             context.source.sendFeedback(
-                TranslatableText(
-                    "text.homabric.new_home_created", LiteralText(homeName).formatted(
+                Text.translatable(
+                    "text.homabric.new_home_created", Text.literal(homeName).formatted(
                         Formatting.WHITE
                     )
                 ).formatted(Formatting.GREEN), false
             )
         } else {
             context.source.sendFeedback(
-                TranslatableText(
-                    "text.homabric.home_location_updated", LiteralText(homeName).formatted(
+                Text.translatable(
+                    "text.homabric.home_location_updated", Text.literal(homeName).formatted(
                         Formatting.WHITE
                     )
                 ).formatted(Formatting.GREEN), false
@@ -230,12 +231,12 @@ object BaseCommands {
         val homeName = context.getArgument("home", String::class.java)
         when (getOrCreatePlayer(context.source.name).removeHome(homeName)) {
             PlayerObject.HomeRemoveResult.NO_HOME -> {
-                context.source.sendFeedback(TranslatableText("text.homabric.no_home").formatted(Formatting.RED), false)
+                context.source.sendFeedback(Text.translatable("text.homabric.no_home").formatted(Formatting.RED), false)
             }
             PlayerObject.HomeRemoveResult.HOME_REMOVED -> {
                 context.source.sendFeedback(
-                    TranslatableText(
-                        "text.homabric.home_removed", LiteralText(homeName).formatted(
+                    Text.translatable(
+                        "text.homabric.home_removed", Text.literal(homeName).formatted(
                             Formatting.WHITE
                         )
                     ).formatted(Formatting.GREEN), false
@@ -260,28 +261,28 @@ object BaseCommands {
         when (getOrCreatePlayer(context.source.name).allowHome(homeName, allowedPlayer)) {
             PlayerObject.HomeAllowResult.NO_PLAYER -> {
                 context.source.sendFeedback(
-                    TranslatableText("text.homabric.no_player_exists").formatted(Formatting.RED), false
+                    Text.translatable("text.homabric.no_player_exists").formatted(Formatting.RED), false
                 )
             }
             PlayerObject.HomeAllowResult.NO_SELF_ALLOW -> {
                 context.source.sendFeedback(
-                    TranslatableText("text.homabric.allow_self").formatted(Formatting.BLUE), false
+                    Text.translatable("text.homabric.allow_self").formatted(Formatting.BLUE), false
                 )
             }
             PlayerObject.HomeAllowResult.NO_HOME -> {
-                context.source.sendFeedback(TranslatableText("text.homabric.no_home").formatted(Formatting.RED), false)
+                context.source.sendFeedback(Text.translatable("text.homabric.no_home").formatted(Formatting.RED), false)
             }
             PlayerObject.HomeAllowResult.ALREADY_ALLOWED -> {
                 context.source.sendFeedback(
-                    TranslatableText("text.homabric.already_allowed").formatted(Formatting.RED), false
+                    Text.translatable("text.homabric.already_allowed").formatted(Formatting.RED), false
                 )
             }
             PlayerObject.HomeAllowResult.HOME_ALLOWED -> {
                 context.source.sendFeedback(
-                    TranslatableText(
-                        "text.homabric.allowed", LiteralText(homeName).formatted(
+                    Text.translatable(
+                        "text.homabric.allowed", Text.literal(homeName).formatted(
                             Formatting.WHITE
-                        ), LiteralText(allowedPlayer.entityName).formatted(Formatting.AQUA)
+                        ), Text.literal(allowedPlayer.entityName).formatted(Formatting.AQUA)
                     ).formatted(
                         Formatting.GREEN
                     ), false
@@ -298,23 +299,23 @@ object BaseCommands {
         when (getOrCreatePlayer(context.source.name).disallowHome(homeName, disallowedPlayer)) {
             PlayerObject.HomeDisallowResult.NO_PLAYER -> {
                 context.source.sendFeedback(
-                    TranslatableText("text.homabric.no_player_exists").formatted(Formatting.RED), false
+                    Text.translatable("text.homabric.no_player_exists").formatted(Formatting.RED), false
                 )
             }
             PlayerObject.HomeDisallowResult.NO_HOME -> {
-                context.source.sendFeedback(TranslatableText("text.homabric.no_home").formatted(Formatting.RED), false)
+                context.source.sendFeedback(Text.translatable("text.homabric.no_home").formatted(Formatting.RED), false)
             }
             PlayerObject.HomeDisallowResult.NOT_ALLOWED -> {
                 context.source.sendFeedback(
-                    TranslatableText("text.homabric.no_player_disallow").formatted(Formatting.RED), false
+                    Text.translatable("text.homabric.no_player_disallow").formatted(Formatting.RED), false
                 )
             }
             PlayerObject.HomeDisallowResult.HOME_ALLOWED -> {
                 context.source.sendFeedback(
-                    TranslatableText(
-                        "text.homabric.disallowed", LiteralText(homeName).formatted(
+                    Text.translatable(
+                        "text.homabric.disallowed", Text.literal(homeName).formatted(
                             Formatting.WHITE
-                        ), LiteralText(disallowedPlayer).formatted(Formatting.AQUA)
+                        ), Text.literal(disallowedPlayer).formatted(Formatting.AQUA)
                     ).formatted(Formatting.GREEN), false
                 )
             }

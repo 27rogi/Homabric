@@ -10,9 +10,9 @@ import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.screen.slot.SlotActionType
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.text.LiteralText
+import net.minecraft.text.Text.literal
 import net.minecraft.text.Text
-import net.minecraft.text.TranslatableText
+import net.minecraft.text.Text.translatable
 import net.minecraft.util.Formatting
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
@@ -107,18 +107,18 @@ class PlayerObject {
         homes?.forEach { (key: String?, data: HomeObject?) ->
             val lore = ArrayList<Text>()
             lore.add(
-                TranslatableText(
-                    "X: %s Y: %s Z: %s", LiteralText(java.lang.String.valueOf(data!!.x)).formatted(Formatting.GREEN), LiteralText(java.lang.String.valueOf(data.y)).formatted(Formatting.GREEN), LiteralText(java.lang.String.valueOf(data.z)).formatted(Formatting.GREEN)
+                Text.translatable(
+                    "X: %s Y: %s Z: %s", Text.literal(java.lang.String.valueOf(data!!.x)).formatted(Formatting.GREEN), Text.literal(java.lang.String.valueOf(data.y)).formatted(Formatting.GREEN), Text.literal(java.lang.String.valueOf(data.z)).formatted(Formatting.GREEN)
                 ).formatted(Formatting.GRAY)
             )
             lore.add(
-                TranslatableText(
-                    "text.homabric.gui_lore_world", LiteralText(data.world).formatted(Formatting.GREEN)
+                Text.translatable(
+                    "text.homabric.gui_lore_world", Text.literal(data.world).formatted(Formatting.GREEN)
                 ).formatted(Formatting.GRAY)
             )
             if (data.allowedPlayers!!.size > 0) lore.add(
-                TranslatableText(
-                    "text.homabric.gui_lore_allowed", LiteralText(
+                Text.translatable(
+                    "text.homabric.gui_lore_allowed", Text.literal(
                         java.lang.String.join(
                             ",", data.allowedPlayers
                         )
@@ -127,7 +127,7 @@ class PlayerObject {
             )
             val slotItem: GuiElementInterface = GuiElementBuilder.from(
                 Registry.ITEM[Identifier.tryParse(data.icon)].defaultStack
-            ).setName(LiteralText(key).formatted(Formatting.YELLOW)).setLore(lore).setCallback { _: Int, _: ClickType?, _: SlotActionType? ->
+            ).setName(Text.literal(key).formatted(Formatting.YELLOW)).setLore(lore).setCallback { _: Int, _: ClickType?, _: SlotActionType? ->
                 try {
                     data.teleportPlayer(source.player)
                     gui.close()
@@ -135,8 +135,8 @@ class PlayerObject {
                     e.printStackTrace()
                 }
                 source.sendFeedback(
-                    TranslatableText(
-                        "text.homabric.teleport_done", LiteralText(key).formatted(Formatting.WHITE)
+                    Text.translatable(
+                        "text.homabric.teleport_done", Text.literal(key).formatted(Formatting.WHITE)
                     ).formatted(Formatting.GREEN), false
                 )
             }.build()
@@ -144,8 +144,8 @@ class PlayerObject {
             index.getAndIncrement()
         }
         gui.lockPlayerInventory = true
-        gui.title = TranslatableText(
-            "text.homabric.gui_title", LiteralText(source.name).formatted(Formatting.DARK_BLUE), LiteralText(homes!!.size.toString()), LiteralText(getHomeLimit(source).toString()).formatted(Formatting.DARK_BLUE)
+        gui.title = Text.translatable(
+            "text.homabric.gui_title", Text.literal(source.name).formatted(Formatting.DARK_BLUE), Text.literal(homes!!.size.toString()), Text.literal(getHomeLimit(source).toString()).formatted(Formatting.DARK_BLUE)
         )
         return gui
     }
@@ -245,7 +245,7 @@ class PlayerObject {
             TeleportHelper.runTeleport(source.player, fun() {
                 home.teleportPlayer(player)
                 source.sendFeedback(
-                    TranslatableText("text.homabric.teleport_done", LiteralText(homeName).formatted(Formatting.WHITE)).formatted(Formatting.GREEN), false
+                    Text.translatable("text.homabric.teleport_done", Text.literal(homeName).formatted(Formatting.WHITE)).formatted(Formatting.GREEN), false
                 )
             })
             return TeleportToOtherResult.TELEPORT_DONE
