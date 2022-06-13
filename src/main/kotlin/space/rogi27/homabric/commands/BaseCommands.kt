@@ -6,25 +6,20 @@ import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.CommandSyntaxException
-import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import eu.pb4.sgui.api.gui.SimpleGui
 import me.lucko.fabric.api.permissions.v0.Permissions
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.minecraft.command.EntitySelector
 import net.minecraft.command.argument.EntityArgumentType
 import net.minecraft.command.argument.IdentifierArgumentType
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
-import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.Text
-import net.minecraft.text.Text.literal
-import net.minecraft.text.Text.translatable
 import net.minecraft.util.Formatting
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
 import space.rogi27.homabric.Homabric
-import space.rogi27.homabric.config.HomesConfig
 import space.rogi27.homabric.config.HomesConfig.getOrCreatePlayer
 import space.rogi27.homabric.helpers.Completables.suggestAllowedHomes
 import space.rogi27.homabric.helpers.Completables.suggestOnlinePlayerStrings
@@ -32,12 +27,10 @@ import space.rogi27.homabric.helpers.Completables.suggestPlayerHomes
 import space.rogi27.homabric.helpers.TeleportHelper
 import space.rogi27.homabric.objects.HomeObject
 import space.rogi27.homabric.objects.PlayerObject
-import java.util.concurrent.CompletableFuture
-import java.util.function.Consumer
 
 object BaseCommands {
     fun init() {
-        CommandRegistrationCallback.EVENT.register(CommandRegistrationCallback { dispatcher: CommandDispatcher<ServerCommandSource?>, _: Boolean ->
+        CommandRegistrationCallback.EVENT.register(CommandRegistrationCallback { dispatcher: CommandDispatcher<ServerCommandSource?>, _, _ ->
             dispatcher.register(registerBaseCommands("home"))
             dispatcher.register(registerBaseCommands("h"))
         })
@@ -122,12 +115,12 @@ object BaseCommands {
                             Formatting.WHITE
                         ), Registry.ITEM[context.getArgument(
                             "item", Identifier::class.java
-                        )].name.shallowCopy().formatted(Formatting.AQUA)
+                        )].name.copy().formatted(Formatting.AQUA)
                     ).formatted(Formatting.GREEN), false
                 )
             }
         }
-        Homabric.reloadConfig()
+        Homabric.saveAndReloadConfig()
         return 1
     }
     
@@ -144,9 +137,10 @@ object BaseCommands {
             context.source.sendFeedback(Text.translatable("text.homabric.no_home").formatted(Formatting.RED), false)
             return 0
         }
-        
-        TeleportHelper.runTeleport(context.source.player, fun() {
-            home.teleportPlayer(context.source.player)
+    
+        if (context.source.player == null) return 0;
+        TeleportHelper.runTeleport(context.source.player!!, fun() {
+            home.teleportPlayer(context.source.player!!)
             context.source.sendFeedback(
                 Text.translatable(
                     "text.homabric.teleport_done", Text.literal(homeName).formatted(Formatting.WHITE)
@@ -178,7 +172,7 @@ object BaseCommands {
             }
             PlayerObject.TeleportToOtherResult.TELEPORT_DONE -> {
                 context.source.sendFeedback(
-                    TranslatableText("text.homabric.teleport_done").formatted(Formatting.RED), false
+                    Text.translatable("text.homabric.teleport_done").formatted(Formatting.RED), false
                 )
             }
         }
@@ -224,7 +218,7 @@ object BaseCommands {
                 ).formatted(Formatting.GREEN), false
             )
         }
-        Homabric.reloadConfig()
+        Homabric.saveAndReloadConfig()
         return 1
     }
     

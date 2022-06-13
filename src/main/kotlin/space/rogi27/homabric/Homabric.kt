@@ -27,7 +27,7 @@ class Homabric:ModInitializer {
         val homesConfig: Config = Config("homabric", arrayOf("homabric.homes"), HomesConfig)
         
         @JvmStatic
-        fun reloadConfig() {
+        fun saveAndReloadConfig() {
             config.save()
             homesConfig.save()
             config.load()

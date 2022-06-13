@@ -10,9 +10,7 @@ import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.screen.slot.SlotActionType
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.text.Text.literal
 import net.minecraft.text.Text
-import net.minecraft.text.Text.translatable
 import net.minecraft.util.Formatting
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
@@ -93,10 +91,10 @@ class PlayerObject {
         }
         homes?.set(
             homeName, HomeObject().withData(
-                player.world.registryKey.value.toString(), player.position.x, player.position.y, player.position.z, player.player.headYaw, player.player.pitch, allowedPlayers, icon
+                player.world.registryKey.value.toString(), player.position.x, player.position.y, player.position.z, player.player!!.headYaw, player.player!!.pitch, allowedPlayers, icon
             )
         )
-        Homabric.reloadConfig()
+        Homabric.saveAndReloadConfig()
         return result
     }
     
@@ -129,7 +127,7 @@ class PlayerObject {
                 Registry.ITEM[Identifier.tryParse(data.icon)].defaultStack
             ).setName(Text.literal(key).formatted(Formatting.YELLOW)).setLore(lore).setCallback { _: Int, _: ClickType?, _: SlotActionType? ->
                 try {
-                    data.teleportPlayer(source.player)
+                    data.teleportPlayer(source.player!!)
                     gui.close()
                 } catch (e: CommandSyntaxException) {
                     e.printStackTrace()
@@ -155,7 +153,7 @@ class PlayerObject {
             return HomeRemoveResult.NO_HOME
         }
         homes!!.remove(name)
-        Homabric.reloadConfig()
+        Homabric.saveAndReloadConfig()
         return HomeRemoveResult.HOME_REMOVED
     }
     
@@ -183,7 +181,7 @@ class PlayerObject {
             return HomeAllowResult.ALREADY_ALLOWED
         }
         home.allowFor(allowedPlayer.entityName)
-        Homabric.reloadConfig()
+        Homabric.saveAndReloadConfig()
         return HomeAllowResult.HOME_ALLOWED
     }
     
@@ -193,7 +191,7 @@ class PlayerObject {
             return HomeDisallowResult.NOT_ALLOWED
         }
         home.disallowFor(disallowedPlayer)
-        Homabric.reloadConfig()
+        Homabric.saveAndReloadConfig()
         return HomeDisallowResult.HOME_ALLOWED
     }
     
@@ -202,7 +200,7 @@ class PlayerObject {
         if (homes == null) return null
         homes!!.forEach { (key: String, home: HomeObject?) ->
             if (home!!.allowedPlayers != null && home.allowedPlayers!!.contains(name)) names.add(key)
-            Homabric.reloadConfig()
+            Homabric.saveAndReloadConfig()
         }
         return names
     }
@@ -234,7 +232,7 @@ class PlayerObject {
     companion object {
         @Throws(CommandSyntaxException::class)
         fun teleportToOtherHome(source: ServerCommandSource, playerName: String?, homeName: String, force: Boolean): TeleportToOtherResult {
-            val player = source.player
+            val player = source.player!!
             val owner: PlayerObject = HomesConfig.getPlayer(playerName!!) ?: return TeleportToOtherResult.NO_PLAYER
             val home = owner.getHome(homeName) ?: return TeleportToOtherResult.NO_HOME
             if (!force) {
@@ -242,7 +240,7 @@ class PlayerObject {
                     return TeleportToOtherResult.NO_ACCESS
                 }
             }
-            TeleportHelper.runTeleport(source.player, fun() {
+            TeleportHelper.runTeleport(player, fun() {
                 home.teleportPlayer(player)
                 source.sendFeedback(
                     Text.translatable("text.homabric.teleport_done", Text.literal(homeName).formatted(Formatting.WHITE)).formatted(Formatting.GREEN), false

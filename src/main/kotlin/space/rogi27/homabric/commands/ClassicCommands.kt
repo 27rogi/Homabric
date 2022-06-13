@@ -3,7 +3,7 @@ package space.rogi27.homabric.commands
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.StringArgumentType
 import me.lucko.fabric.api.permissions.v0.Permissions
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.minecraft.command.argument.EntityArgumentType
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
@@ -14,7 +14,7 @@ import space.rogi27.homabric.helpers.Completables
 object ClassicCommands {
     fun init() {
         if (HomabricConfig.areClassicCommandsEnabled()) {
-            CommandRegistrationCallback.EVENT.register(CommandRegistrationCallback { dispatcher: CommandDispatcher<ServerCommandSource?>, _: Boolean ->
+            CommandRegistrationCallback.EVENT.register(CommandRegistrationCallback { dispatcher: CommandDispatcher<ServerCommandSource?>, _, _ ->
                 dispatcher.register(
                     CommandManager.literal("sethome").requires(Permissions.require("homabric.base.set", 0))
                         .then(CommandManager.argument("home", StringArgumentType.word())

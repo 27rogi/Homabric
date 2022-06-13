@@ -3,7 +3,7 @@ package space.rogi27.homabric.config
 import me.lortseam.completeconfig.api.ConfigContainer
 import me.lortseam.completeconfig.api.ConfigEntry
 import space.rogi27.homabric.Homabric
-import space.rogi27.homabric.Homabric.Companion.reloadConfig
+import space.rogi27.homabric.Homabric.Companion.saveAndReloadConfig
 import space.rogi27.homabric.objects.PlayerObject
 
 object HomesConfig:ConfigContainer {
@@ -21,7 +21,7 @@ object HomesConfig:ConfigContainer {
         if (players[name] == null) {
             Homabric.logger.warn("There is no data for $name, creating new entry.")
             players[name] = PlayerObject().withData(java.util.Map.of())
-            reloadConfig()
+            saveAndReloadConfig()
         }
         return players[name]!!
     }
