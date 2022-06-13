@@ -175,6 +175,11 @@ object BaseCommands {
                     TranslatableText("text.homabric.no_home_access").formatted(Formatting.RED), false
                 )
             }
+            PlayerObject.TeleportToOtherResult.TELEPORT_DONE -> {
+                context.source.sendFeedback(
+                    TranslatableText("text.homabric.teleport_done").formatted(Formatting.RED), false
+                )
+            }
         }
         return 1
     }
