@@ -23,10 +23,6 @@
   },
   "depends": {
     "fabricloader": ">=0.8.7",
-    "fabric": "*",
     "fabric-language-kotlin": "*"
-  },
-  "suggests": {
-    "fabric-permissions-api-v0": "*"
   }
 }

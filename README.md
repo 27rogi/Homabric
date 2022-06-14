@@ -9,7 +9,6 @@
 <img src="https://cf.way2muchnoise.eu/versions/homabric.svg?badge_style=for_the_badge" />
 
 
-<a title="Fabric Language Kotlin" href="https://minecraft.curseforge.com/projects/fabric-language-kotlin" target="_blank" rel="noopener noreferrer"><img height="40" src="https://i.imgur.com/c1DH9VL.png" /></a>
 <a title="Fabric API" href="https://minecraft.curseforge.com/projects/fabric-api" target="_blank" rel="noopener noreferrer"><img height="40" src="https://i.imgur.com/Ol1Tcf8.png" /></a>
 </div>
 

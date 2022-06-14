@@ -1,6 +1,5 @@
 package space.rogi27.homabric.commands
 
-import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.CommandSyntaxException
@@ -20,44 +19,33 @@ import java.util.*
 
 object AdminCommands {
     fun init() {
-        CommandRegistrationCallback.EVENT.register(CommandRegistrationCallback { dispatcher: CommandDispatcher<ServerCommandSource?>, _, _ ->
-            dispatcher.register(CommandManager.literal("homabric").requires(Permissions.require("homabric.admin.use", 2))
-                .then(CommandManager.literal("reload").requires(Permissions.require("homabric.admin.reload", 2))
-                        .executes(AdminCommands::reload)
-                )
-                .then(
-                    CommandManager.literal("teleport").requires(Permissions.require("homabric.admin.teleport", 2))
-                        .then(CommandManager.argument("player", StringArgumentType.word())
-                                .suggests(Completables::suggestPlayers)
-                                .then(CommandManager.argument("home", StringArgumentType.word())
-                                        .suggests(Completables::suggestPlayerHomesForAdmin)
-                                        .executes((AdminCommands::teleport))
+        CommandRegistrationCallback.EVENT.register(CommandRegistrationCallback { dispatcher, _, _ ->
+            dispatcher.register(
+                CommandManager.literal("homabric").requires(Permissions.require("homabric.admin.use", 2)).then(
+                            CommandManager.literal("reload").requires(Permissions.require("homabric.admin.reload", 2)).executes(AdminCommands::reload)
+                        ).then(
+                            CommandManager.literal("teleport").requires(Permissions.require("homabric.admin.teleport", 2)).then(
+                                        CommandManager.argument("player", StringArgumentType.word()).suggests(Completables::suggestPlayers).then(
+                                                    CommandManager.argument("home", StringArgumentType.word()).suggests(Completables::suggestPlayerHomesForAdmin).executes((AdminCommands::teleport))
+                                                )
+                                    )
+                        ).then(
+                            CommandManager.literal("set").requires(Permissions.require("homabric.admin.set", 2)).then(
+                                        CommandManager.argument("player", StringArgumentType.word()).suggests(Completables::suggestPlayers).then(
+                                                    CommandManager.argument("home", StringArgumentType.word()).suggests(Completables::suggestPlayerHomesForAdmin).executes((AdminCommands::set))
+                                                )
+                                    )
+                        ).then(
+                            CommandManager.literal("remove").requires(Permissions.require("homabric.admin.remove", 2)).then(
+                                CommandManager.argument("player", StringArgumentType.word()).suggests(Completables::suggestPlayers).then(
+                                    CommandManager.argument("home", StringArgumentType.word()).suggests(Completables::suggestPlayerHomesForAdmin).executes((AdminCommands::remove))
                                 )
-                        )
-                )
-                .then(
-                    CommandManager.literal("set").requires(Permissions.require("homabric.admin.set", 2))
-                        .then(CommandManager.argument("player", StringArgumentType.word())
-                                .suggests(Completables::suggestPlayers)
-                                .then(CommandManager.argument("home", StringArgumentType.word())
-                                    .suggests(Completables::suggestPlayerHomesForAdmin)
-                                    .executes((AdminCommands::set))
-                                )
-                    )
-                )
-                .then(
-                    CommandManager.literal("remove").requires(Permissions.require("homabric.admin.remove", 2)).then(
-                        CommandManager.argument("player", StringArgumentType.word()).suggests(Completables::suggestPlayers).then(
-                            CommandManager.argument("home", StringArgumentType.word()).suggests(Completables::suggestPlayerHomesForAdmin).executes((AdminCommands::remove))
-                        )
-                    )
-                )
-                .then(
-                    CommandManager.literal("list").requires(Permissions.require("homabric.admin.list", 2)).then(
-                        CommandManager.argument("player", StringArgumentType.word()).suggests(Completables::suggestPlayers).executes((AdminCommands::list))
-                    )
-                )
-                .executes((AdminCommands::info))
+                            )
+                        ).then(
+                            CommandManager.literal("list").requires(Permissions.require("homabric.admin.list", 2)).then(
+                                CommandManager.argument("player", StringArgumentType.word()).suggests(Completables::suggestPlayers).executes((AdminCommands::list))
+                            )
+                        ).executes((AdminCommands::info))
             )
         })
     }
@@ -79,7 +67,11 @@ object AdminCommands {
         )
         context.source.sendFeedback(
             Text.translatable(
-                java.lang.String.join("\n", info), Text.literal("Homabric").formatted(Formatting.AQUA), Text.translatable("text.homabric.admin_info_line1").formatted(Formatting.GRAY), Text.literal(" - /help homabric").formatted(Formatting.GRAY), Text.literal(" - /help home").formatted(Formatting.GRAY)
+                java.lang.String.join("\n", info),
+                Text.literal("Homabric").formatted(Formatting.AQUA),
+                Text.translatable("text.homabric.admin_info_line1").formatted(Formatting.GRAY),
+                Text.literal(" - /help homabric").formatted(Formatting.GRAY),
+                Text.literal(" - /help home").formatted(Formatting.GRAY)
             ).formatted(Formatting.GREEN), false
         )
         return 1
@@ -102,7 +94,7 @@ object AdminCommands {
             return 0
         }
         
-        if (context.source.player == null) return 0;
+        if (context.source.player == null) return 0
         TeleportHelper.runTeleport(context.source.player!!, fun() {
             home.teleportPlayer(context.source.player!!)
             context.source.sendFeedback(

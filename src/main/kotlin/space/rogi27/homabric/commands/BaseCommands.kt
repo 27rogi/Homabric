@@ -1,7 +1,6 @@
 package space.rogi27.homabric.commands
 
 import com.mojang.brigadier.Command
-import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
@@ -30,70 +29,48 @@ import space.rogi27.homabric.objects.PlayerObject
 
 object BaseCommands {
     fun init() {
-        CommandRegistrationCallback.EVENT.register(CommandRegistrationCallback { dispatcher: CommandDispatcher<ServerCommandSource?>, _, _ ->
+        CommandRegistrationCallback.EVENT.register(CommandRegistrationCallback { dispatcher, _, _ ->
             dispatcher.register(registerBaseCommands("home"))
             dispatcher.register(registerBaseCommands("h"))
         })
     }
     
     private fun registerBaseCommands(name: String?): LiteralArgumentBuilder<ServerCommandSource?>? {
-        return CommandManager.literal(name).requires(Permissions.require("homabric.base.use", 0))
-                .then(CommandManager.literal("set")
-                        .requires(Permissions.require("homabric.base.set", 0))
-                        .then(CommandManager.argument("home", StringArgumentType.word())
-                                .suggests { context: CommandContext<ServerCommandSource>, builder: SuggestionsBuilder? -> suggestPlayerHomes(context, (builder)!!) }
+        return CommandManager.literal(name).requires(Permissions.require("homabric.base.use", 0)).then(CommandManager.literal("set").requires(Permissions.require("homabric.base.set", 0))
+                        .then(CommandManager.argument("home", StringArgumentType.word()).suggests { context: CommandContext<ServerCommandSource>, builder: SuggestionsBuilder? -> suggestPlayerHomes(context, (builder)!!) }
                                 .executes(Command { context: CommandContext<ServerCommandSource> -> set(context) })
-                        )
-                        .executes { context: CommandContext<ServerCommandSource> -> set( context ) }
-                )
-                .then(CommandManager.literal("remove").requires(Permissions.require("homabric.base.remove", 0))
-                        .then(CommandManager.argument("home", StringArgumentType.word())
-                                .suggests { context: CommandContext<ServerCommandSource>, builder: SuggestionsBuilder? -> suggestPlayerHomes(context, (builder)!!) }
+                        ).executes { context: CommandContext<ServerCommandSource> -> set(context) }).then(CommandManager.literal("remove").requires(Permissions.require("homabric.base.remove", 0))
+                        .then(CommandManager.argument("home", StringArgumentType.word()).suggests { context: CommandContext<ServerCommandSource>, builder: SuggestionsBuilder? -> suggestPlayerHomes(context, (builder)!!) }
                                 .executes((Command { context: CommandContext<ServerCommandSource> -> remove(context) }))
                         )
-                )
-                .then(CommandManager.literal("list").requires(Permissions.require("homabric.base.list", 0))
-                            .executes((Command { context: CommandContext<ServerCommandSource> -> list(context) }))
-                )
-                .then(CommandManager.literal("allow").requires(Permissions.require("homabric.base.allow", 0))
-                        .then(CommandManager.argument("player", EntityArgumentType.player())
-                                .suggests { context: CommandContext<ServerCommandSource>, builder: SuggestionsBuilder? -> suggestOnlinePlayerStrings(context, (builder)!!) }
+                ).then(
+                    CommandManager.literal("list").requires(Permissions.require("homabric.base.list", 0)).executes((Command { context: CommandContext<ServerCommandSource> -> list(context) }))
+                ).then(CommandManager.literal("allow").requires(Permissions.require("homabric.base.allow", 0))
+                        .then(CommandManager.argument("player", EntityArgumentType.player()).suggests { context: CommandContext<ServerCommandSource>, builder: SuggestionsBuilder? -> suggestOnlinePlayerStrings(context, (builder)!!) }
                                 .then(CommandManager.argument("home", StringArgumentType.word()).suggests { context: CommandContext<ServerCommandSource>, builder: SuggestionsBuilder? -> suggestPlayerHomes(context, (builder)!!) }
                                         .executes((Command { context: CommandContext<ServerCommandSource> -> allowHome(context) }))
                                 )
                         )
-                )
-                .then(CommandManager.literal("disallow").requires(Permissions.require("homabric.base.disallow", 0))
-                        .then(CommandManager.argument("player", StringArgumentType.word())
-                                .suggests { context: CommandContext<ServerCommandSource>, builder: SuggestionsBuilder? -> suggestOnlinePlayerStrings(context, (builder)!!) }
-                                .then(CommandManager.argument("home", StringArgumentType.word())
-                                        .suggests { context: CommandContext<ServerCommandSource>, builder: SuggestionsBuilder? -> suggestPlayerHomes(context, (builder)!!) }
+                ).then(CommandManager.literal("disallow").requires(Permissions.require("homabric.base.disallow", 0))
+                        .then(CommandManager.argument("player", StringArgumentType.word()).suggests { context: CommandContext<ServerCommandSource>, builder: SuggestionsBuilder? -> suggestOnlinePlayerStrings(context, (builder)!!) }
+                                .then(CommandManager.argument("home", StringArgumentType.word()).suggests { context: CommandContext<ServerCommandSource>, builder: SuggestionsBuilder? -> suggestPlayerHomes(context, (builder)!!) }
                                         .executes((Command { context: CommandContext<ServerCommandSource> -> disallowHome(context) }))
                                 )
                         )
-                )
-                .then(CommandManager.literal("p").requires(Permissions.require("homabric.base.others", 0))
-                        .then(CommandManager.argument("player", StringArgumentType.word())
-                                .suggests { context: CommandContext<ServerCommandSource>, builder: SuggestionsBuilder? -> suggestOnlinePlayerStrings(context, (builder)!!) }
-                                .then(CommandManager.argument("home", StringArgumentType.word())
-                                        .suggests { context: CommandContext<ServerCommandSource>, builder: SuggestionsBuilder? -> suggestAllowedHomes(context, (builder)!!) }
+                ).then(CommandManager.literal("p").requires(Permissions.require("homabric.base.others", 0))
+                        .then(CommandManager.argument("player", StringArgumentType.word()).suggests { context: CommandContext<ServerCommandSource>, builder: SuggestionsBuilder? -> suggestOnlinePlayerStrings(context, (builder)!!) }
+                                .then(CommandManager.argument("home", StringArgumentType.word()).suggests { context: CommandContext<ServerCommandSource>, builder: SuggestionsBuilder? -> suggestAllowedHomes(context, (builder)!!) }
                                         .executes((Command { context: CommandContext<ServerCommandSource> -> teleportToAllowed(context) }))
                                 )
                         )
-                )
-                .then(CommandManager.literal("setIcon").requires(Permissions.require("homabric.base.setIcon", 0))
-                        .then(CommandManager.argument("home", StringArgumentType.word()).suggests { context: CommandContext<ServerCommandSource>, builder: SuggestionsBuilder? -> suggestPlayerHomes(context, (builder)!!) }
-                                .then(CommandManager.argument("item", IdentifierArgumentType.identifier())
-                                        .executes((Command { context: CommandContext<ServerCommandSource> -> setIcon(context) }))
+                ).then(CommandManager.literal("setIcon").requires(Permissions.require("homabric.base.setIcon", 0))
+                        .then(CommandManager.argument("home", StringArgumentType.word()).suggests { context: CommandContext<ServerCommandSource>, builder: SuggestionsBuilder? -> suggestPlayerHomes(context, (builder)!!) }.then(
+                                    CommandManager.argument("item", IdentifierArgumentType.identifier()).executes((Command { context: CommandContext<ServerCommandSource> -> setIcon(context) }))
                                 )
                         )
-                )
-                .then(CommandManager.argument("home", StringArgumentType.word())
-                        .suggests { context: CommandContext<ServerCommandSource>, builder: SuggestionsBuilder? -> suggestPlayerHomes(context, (builder)!!) }
-                        .requires(Permissions.require("homabric.base.byName", 0))
+                ).then(CommandManager.argument("home", StringArgumentType.word()).suggests { context: CommandContext<ServerCommandSource>, builder: SuggestionsBuilder? -> suggestPlayerHomes(context, (builder)!!) }.requires(Permissions.require("homabric.base.byName", 0))
                         .executes((Command { context: CommandContext<ServerCommandSource> -> teleport(context, true) }))
-                )
-                .executes((Command { context: CommandContext<ServerCommandSource> -> teleport(context, false) }))
+                ).executes((Command { context: CommandContext<ServerCommandSource> -> teleport(context, false) }))
     }
     
     @Throws(CommandSyntaxException::class)
@@ -134,11 +111,11 @@ object BaseCommands {
         val home: HomeObject? = player.getHome(homeName)
         
         if (home == null) {
-            context.source.sendFeedback(Text.translatable("text.homabric.no_home").formatted(Formatting.RED), false)
+            context.source.sendFeedback(Text.translatable("text.homabric.no_home"), false)
             return 0
         }
-    
-        if (context.source.player == null) return 0;
+        
+        if (context.source.player == null) return 0
         TeleportHelper.runTeleport(context.source.player!!, fun() {
             home.teleportPlayer(context.source.player!!)
             context.source.sendFeedback(
@@ -186,8 +163,7 @@ object BaseCommands {
         }
         var homeName: String? = "home"
         try {
-            if (context.getArgument("home", String::class.java) != null)
-                homeName = context.getArgument("home", String::class.java)
+            if (context.getArgument("home", String::class.java) != null) homeName = context.getArgument("home", String::class.java)
         } catch (ex: Exception) {
             Homabric.logger.warn("Using command without name, referencing home")
         }

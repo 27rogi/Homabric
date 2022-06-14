@@ -2,7 +2,6 @@ package space.rogi27.homabric.helpers
 
 import me.lucko.fabric.api.permissions.v0.Permissions
 import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.text.Text
 import net.minecraft.text.Text.literal
 import net.minecraft.text.Text.translatable
 import net.minecraft.util.Formatting
@@ -34,7 +33,7 @@ object TeleportHelper {
         
         // be sure to have player only once to prevent bugs
         if (teleportingPlayers[player.uuidAsString] != null) {
-            return player.sendMessage(Text.translatable("text.homabric.teleport_already_in").formatted(Formatting.YELLOW), false)
+            return player.sendMessage(translatable("text.homabric.teleport_already_in").formatted(Formatting.YELLOW), false)
         }
         teleportingPlayers[player.uuidAsString] = HomabricConfig.teleportCooldown()
         
@@ -47,7 +46,7 @@ object TeleportHelper {
                 
                 if ((firstPos != player.pos) || (firstHealth > player.health)) {
                     stopTeleport(timer, player)
-                    return player.sendMessage(Text.translatable("text.homabric.teleport_canceled").formatted(Formatting.RED), false)
+                    return player.sendMessage(translatable("text.homabric.teleport_canceled").formatted(Formatting.RED), false)
                 }
                 
                 teleportingPlayers[player.uuidAsString] = teleportingPlayers[player.uuidAsString]!!.minus(1)
@@ -59,8 +58,8 @@ object TeleportHelper {
                 
                 // adding 1 because timer starts from 0 which is not right from player's perspective
                 player.sendMessage(
-                    Text.translatable(
-                        "text.homabric.teleport_in_progress", Text.literal((teleportingPlayers[player.uuidAsString]!! + 1).toString()).formatted(Formatting.AQUA)
+                    translatable(
+                        "text.homabric.teleport_in_progress", literal((teleportingPlayers[player.uuidAsString]!! + 1).toString()).formatted(Formatting.AQUA)
                     ).formatted(Formatting.YELLOW), true
                 )
             }
