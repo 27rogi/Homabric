@@ -12,12 +12,12 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.minecraft.command.EntitySelector
 import net.minecraft.command.argument.EntityArgumentType
 import net.minecraft.command.argument.IdentifierArgumentType
+import net.minecraft.registry.Registries
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 import net.minecraft.util.Identifier
-import net.minecraft.util.registry.Registry
 import space.rogi27.homabric.Homabric
 import space.rogi27.homabric.config.HomesConfig.getOrCreatePlayer
 import space.rogi27.homabric.helpers.Completables.suggestAllowedHomes
@@ -90,7 +90,7 @@ object BaseCommands {
                     Text.translatable(
                         "text.homabric.icon_changed", Text.literal(homeName).formatted(
                             Formatting.WHITE
-                        ), Registry.ITEM[context.getArgument(
+                        ), Registries.ITEM[context.getArgument(
                             "item", Identifier::class.java
                         )].name.copy().formatted(Formatting.AQUA)
                     ).formatted(Formatting.GREEN), false

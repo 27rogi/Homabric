@@ -2,10 +2,11 @@ package space.rogi27.homabric.objects
 
 import net.minecraft.item.Items
 import net.minecraft.particle.ParticleTypes
+import net.minecraft.registry.Registries
+import net.minecraft.registry.RegistryKey
+import net.minecraft.registry.RegistryKeys
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.Identifier
-import net.minecraft.util.registry.Registry
-import net.minecraft.util.registry.RegistryKey
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
 import org.spongepowered.configurate.objectmapping.meta.Comment
 import java.util.*
@@ -47,7 +48,7 @@ class HomeObject {
     fun teleportPlayer(player: ServerPlayerEntity): Boolean {
         val homeWorld = player.getServer()!!.getWorld(
             RegistryKey.of(
-                Registry.WORLD_KEY, Identifier(
+                RegistryKeys.WORLD, Identifier(
                     world
                 )
             )
@@ -75,7 +76,7 @@ class HomeObject {
     }
     
     fun setIcon(item: Identifier): IconResult {
-        if (Registry.ITEM[item] === Items.AIR) {
+        if (Registries.ITEM[item] === Items.AIR) {
             return IconResult.WRONG_ICON
         }
         icon = item.toString()

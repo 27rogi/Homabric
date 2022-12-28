@@ -6,6 +6,7 @@ import eu.pb4.sgui.api.elements.GuiElementBuilder
 import eu.pb4.sgui.api.elements.GuiElementInterface
 import eu.pb4.sgui.api.gui.SimpleGui
 import me.lucko.fabric.api.permissions.v0.Permissions
+import net.minecraft.registry.Registries
 import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.screen.slot.SlotActionType
 import net.minecraft.server.command.ServerCommandSource
@@ -13,7 +14,6 @@ import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 import net.minecraft.util.Identifier
-import net.minecraft.util.registry.Registry
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
 import org.spongepowered.configurate.objectmapping.meta.Comment
 import space.rogi27.homabric.Homabric
@@ -124,7 +124,7 @@ class PlayerObject {
                 )
             )
             val slotItem: GuiElementInterface = GuiElementBuilder.from(
-                Registry.ITEM[Identifier.tryParse(data.icon)].defaultStack
+                Registries.ITEM[Identifier.tryParse(data.icon)].defaultStack
             ).setName(Text.literal(key).formatted(Formatting.YELLOW)).setLore(lore).setCallback { _: Int, _: ClickType?, _: SlotActionType? ->
                 try {
                     data.teleportPlayer(source.player!!)
