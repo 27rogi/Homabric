@@ -9,14 +9,13 @@ import net.minecraft.server.network.ServerPlayerEntity
 import space.rogi27.homabric.config.HomesConfig
 import space.rogi27.homabric.objects.PlayerObject
 import java.util.concurrent.CompletableFuture
-import java.util.function.BiConsumer
 import java.util.function.Consumer
 
 object Completables {
     fun suggestPlayers(context: CommandContext<ServerCommandSource>, builder: SuggestionsBuilder): CompletableFuture<Suggestions> {
-        HomesConfig.getPlayers().forEach(BiConsumer { name: String?, _: PlayerObject? ->
+        HomesConfig.getPlayers().forEach { (name: String?, _: PlayerObject?) ->
             builder.suggest(name)
-        })
+        }
         return builder.buildFuture()
     }
     
