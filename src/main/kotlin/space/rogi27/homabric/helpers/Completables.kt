@@ -12,6 +12,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.function.Consumer
 
 object Completables {
+    @Suppress("UNUSED_PARAMETER")
     fun suggestPlayers(context: CommandContext<ServerCommandSource>, builder: SuggestionsBuilder): CompletableFuture<Suggestions> {
         HomesConfig.getPlayers().forEach { (name: String?, _: PlayerObject?) ->
             builder.suggest(name)
