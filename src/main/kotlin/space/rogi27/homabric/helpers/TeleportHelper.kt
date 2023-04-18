@@ -23,7 +23,7 @@ object TeleportHelper {
     
     fun runTeleport(player: ServerPlayerEntity, onFinish: () -> Unit) {
         // bypass cooldown for players with permission OR if it was disabled in config
-        if ((Permissions.check(player, "homabric.teleport.bypass", false) || (HomabricConfig.teleportCooldown() == 0))) {
+        if ((Permissions.check(player, "homabric.teleport.bypass", 2) || (HomabricConfig.teleportCooldown() == 0))) {
             return onFinish()
         }
         
