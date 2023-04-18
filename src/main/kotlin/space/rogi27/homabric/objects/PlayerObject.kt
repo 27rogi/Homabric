@@ -126,17 +126,15 @@ class PlayerObject {
             val slotItem: GuiElementInterface = GuiElementBuilder.from(
                 Registries.ITEM[Identifier.tryParse(data.icon)].defaultStack
             ).setName(Text.literal(key).formatted(Formatting.YELLOW)).setLore(lore).setCallback { _: Int, _: ClickType?, _: SlotActionType? ->
-                try {
+                gui.close()
+                TeleportHelper.runTeleport(source.player!!, fun() {
                     data.teleportPlayer(source.player!!)
-                    gui.close()
-                } catch (e: CommandSyntaxException) {
-                    e.printStackTrace()
-                }
-                source.sendFeedback(
-                    Text.translatable(
-                        "text.homabric.teleport_done", Text.literal(key).formatted(Formatting.WHITE)
-                    ).formatted(Formatting.GREEN), false
-                )
+                    source.sendFeedback(
+                        Text.translatable(
+                            "text.homabric.teleport_done", Text.literal(key).formatted(Formatting.WHITE)
+                        ).formatted(Formatting.GREEN), false
+                    )
+                })
             }.build()
             gui.setSlot(index.get(), slotItem)
             index.getAndIncrement()
