@@ -23,6 +23,8 @@ repositories {
 Set<String> fabricApiModules = [
         "fabric-api-base",
         "fabric-command-api-v2",
+        // Required libraries for Server Translations API
+        "fabric-resource-loader-v0",
 ]
 
 dependencies {

@@ -23,5 +23,8 @@
   "text.homabric.no_icon": "Такая иконка не существует!",
   "text.homabric.no_player_disallow": "Этот игрок не имеет доступа к вашему дому!",
   "text.homabric.no_player_exists": "Этот игрок не существует!",
-  "text.homabric.teleport_done": "Телепортирован на %s"
+  "text.homabric.teleport_done": "Телепортирован на %s",
+  "text.homabric.teleport_canceled": "Телепортация была отменена из-за получения вами урона или движения!",
+  "text.homabric.teleport_in_progress": "Вы будете телепортированы через %s",
+  "text.homabric.teleport_already_in": "Вы уже начали телепортацию!"
 }
