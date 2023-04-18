@@ -9,30 +9,30 @@ import net.minecraft.server.network.ServerPlayerEntity
 import space.rogi27.homabric.config.HomesConfig
 import space.rogi27.homabric.objects.PlayerObject
 import java.util.concurrent.CompletableFuture
-import java.util.function.BiConsumer
 import java.util.function.Consumer
 
 object Completables {
-    fun suggestPlayers(context: CommandContext<ServerCommandSource>, builder: SuggestionsBuilder): CompletableFuture<Suggestions?> {
-        HomesConfig.getPlayers().forEach(BiConsumer { name: String?, _: PlayerObject? ->
+    @Suppress("UNUSED_PARAMETER")
+    fun suggestPlayers(context: CommandContext<ServerCommandSource>, builder: SuggestionsBuilder): CompletableFuture<Suggestions> {
+        HomesConfig.getPlayers().forEach { (name: String?, _: PlayerObject?) ->
             builder.suggest(name)
-        })
+        }
         return builder.buildFuture()
     }
     
-    fun suggestPlayerHomes(context: CommandContext<ServerCommandSource>, builder: SuggestionsBuilder): CompletableFuture<Suggestions?> {
+    fun suggestPlayerHomes(context: CommandContext<ServerCommandSource>, builder: SuggestionsBuilder): CompletableFuture<Suggestions> {
         val player = HomesConfig.getPlayer(context.source.name)
         player?.homeNames?.forEach(builder::suggest)
         return builder.buildFuture()
     }
     
-    fun suggestPlayerHomesForAdmin(context: CommandContext<ServerCommandSource>, builder: SuggestionsBuilder): CompletableFuture<Suggestions?> {
+    fun suggestPlayerHomesForAdmin(context: CommandContext<ServerCommandSource>, builder: SuggestionsBuilder): CompletableFuture<Suggestions> {
         val player = HomesConfig.getPlayer(context.getArgument("player", String::class.java))
         player?.homeNames?.forEach(builder::suggest)
         return builder.buildFuture()
     }
     
-    fun suggestOnlinePlayerStrings(context: CommandContext<ServerCommandSource>, builder: SuggestionsBuilder): CompletableFuture<Suggestions?> {
+    fun suggestOnlinePlayerStrings(context: CommandContext<ServerCommandSource>, builder: SuggestionsBuilder): CompletableFuture<Suggestions> {
         context.source.server.playerManager.playerList.forEach(Consumer { player: ServerPlayerEntity ->
             builder.suggest(player.entityName)
         })
@@ -40,7 +40,7 @@ object Completables {
     }
     
     @Throws(CommandSyntaxException::class)
-    fun suggestAllowedHomes(context: CommandContext<ServerCommandSource>, builder: SuggestionsBuilder): CompletableFuture<Suggestions?> {
+    fun suggestAllowedHomes(context: CommandContext<ServerCommandSource>, builder: SuggestionsBuilder): CompletableFuture<Suggestions> {
         val owner = context.getArgument("player", String::class.java)
         if (owner != null && HomesConfig.getPlayer(owner) != null) {
             val allowedHomes = HomesConfig.getPlayer(owner)?.getAllowedHomeNames(context.source.entity!!.entityName)
