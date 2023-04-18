@@ -37,10 +37,10 @@ dependencies {
     }
 
     modImplementation include("net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}")
-    modImplementation include("fr.catcore:server-translations-api:1.4.19+1.19.3")
     modImplementation include("me.lucko:fabric-permissions-api:0.2-SNAPSHOT")
-    modImplementation include("eu.pb4:sgui:1.2.0+1.19.3")
-    modImplementation include("com.github.Lortseam.completeconfig:base:2.2.0")
+    modImplementation include("eu.pb4:sgui:1.2.1+1.19.3")
+    modImplementation include("com.github.Lortseam.completeconfig:base:2.3.1")
+    modImplementation include("xyz.nucleoid:server-translations-api:2.0.0-beta.2+1.19.4-pre2")
 }
 processResources {
     inputs.property "version", project.version
