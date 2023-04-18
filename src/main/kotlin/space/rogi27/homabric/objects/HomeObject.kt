@@ -55,6 +55,12 @@ class HomeObject {
         )
         val oldPos = player.pos
         player.teleport(homeWorld, x, y, z, yaw, pitch)
+
+        // workaround for bug when xp is missing after teleporting between dimensions
+        if (!player.isDead) {
+            player.addExperience(0)
+        }
+
         player.getWorld().spawnParticles(ParticleTypes.GLOW_SQUID_INK, oldPos.x, oldPos.y, oldPos.z, 50, 2.0, 2.0, 2.0, 0.1)
         player.getWorld().spawnParticles(ParticleTypes.GLOW_SQUID_INK, x, y, z, 50, 2.0, 2.0, 2.0, 0.1)
         return true
