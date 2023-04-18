@@ -6,7 +6,6 @@ import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.CommandSyntaxException
-import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import eu.pb4.sgui.api.gui.SimpleGui
 import me.lucko.fabric.api.permissions.v0.Permissions
@@ -16,14 +15,12 @@ import net.minecraft.command.argument.EntityArgumentType
 import net.minecraft.command.argument.IdentifierArgumentType
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
-import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.LiteralText
 import net.minecraft.text.TranslatableText
 import net.minecraft.util.Formatting
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
 import space.rogi27.homabric.Homabric
-import space.rogi27.homabric.config.HomesConfig
 import space.rogi27.homabric.config.HomesConfig.getOrCreatePlayer
 import space.rogi27.homabric.helpers.Completables.suggestAllowedHomes
 import space.rogi27.homabric.helpers.Completables.suggestOnlinePlayerStrings
@@ -31,8 +28,6 @@ import space.rogi27.homabric.helpers.Completables.suggestPlayerHomes
 import space.rogi27.homabric.helpers.TeleportHelper
 import space.rogi27.homabric.objects.HomeObject
 import space.rogi27.homabric.objects.PlayerObject
-import java.util.concurrent.CompletableFuture
-import java.util.function.Consumer
 
 object BaseCommands {
     fun init() {
