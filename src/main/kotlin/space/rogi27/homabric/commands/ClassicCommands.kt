@@ -31,7 +31,7 @@ object ClassicCommands {
                     )
                 )
                 dispatcher.register(
-                    CommandManager.literal("listhome").requires(Permissions.require("homabric.base.list", 0)).executes((BaseCommands::list))
+                    CommandManager.literal("homes").requires(Permissions.require("homabric.base.list", 0)).executes((BaseCommands::list))
                 )
                 dispatcher.register(
                     CommandManager.literal("allowhome").requires(Permissions.require("homabric.base.allow", 0)).then(
