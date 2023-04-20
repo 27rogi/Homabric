@@ -38,6 +38,7 @@
 ## Commands
 
 You can use `homabric.teleport.bypass` permission to bypass teleport timeout.
+To disable limits on homes for players give them `homabric.limit.bypass` permission.
 
 ### Players
 
