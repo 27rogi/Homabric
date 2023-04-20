@@ -22,7 +22,7 @@ object HomabricConfig:ConfigContainer {
     private var teleportCooldown = 3
     
     @ConfigEntry(
-        comment = "You can define permissions that will override home limit for the players if they have them." + "\nPermission names are transformed to permissions like 'homabric.homelimit.<permissionName>'" + "\nExample permission: vip: { max-homes=6 }"
+        comment = "You can define permissions that will override home limit for the players if they have them." + "\nPermission names are transformed to permissions like 'homabric.homelimit.<permissionName>'" + "\nExample permission: vip: { max-homes=6 }" + "\nIf you want to disable limit use 'homabric.limit.bypass' permission."
     )
     var permissionsHomeLimit: Map<String, HomePermissionObject> = HashMap()
     
