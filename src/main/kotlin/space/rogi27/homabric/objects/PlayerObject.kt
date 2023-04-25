@@ -39,8 +39,8 @@ class PlayerObject {
     // TODO: Find better and efficient way for checking permissions
     // Maybe use groups instead?
     fun isLimitReached(player: ServerCommandSource?): Boolean {
-        if (player == null) return false
-        if (Permissions.check(player.player, "homabric.limit.bypass", 2)) return false
+        if (player == null || player.player == null) return false
+        if (Permissions.check(player.player!!, "homabric.limit.bypass", 2)) return false
 
         val homesLimit = AtomicInteger(-1)
         HomabricConfig.permissionsHomeLimit.forEach { (key: String, permissionObject: HomePermissionObject) ->
