@@ -133,9 +133,11 @@ class PlayerObject {
                 TeleportHelper.runTeleport(source.player!!, fun() {
                     data.teleportPlayer(source.player!!)
                     source.sendFeedback(
-                        Text.translatable(
-                            "text.homabric.teleport_done", Text.literal(key).formatted(Formatting.WHITE)
-                        ).formatted(Formatting.GREEN), false
+                        {
+                            Text.translatable(
+                                "text.homabric.teleport_done", Text.literal(key).formatted(Formatting.WHITE)
+                            ).formatted(Formatting.GREEN)
+                        }, false
                     )
                 })
             }.build()
@@ -244,7 +246,12 @@ class PlayerObject {
             TeleportHelper.runTeleport(player, fun() {
                 home.teleportPlayer(player)
                 source.sendFeedback(
-                    Text.translatable("text.homabric.teleport_done", Text.literal(homeName).formatted(Formatting.WHITE)).formatted(Formatting.GREEN), false
+                    {
+                        Text.translatable(
+                            "text.homabric.teleport_done",
+                            Text.literal(homeName).formatted(Formatting.WHITE)
+                        ).formatted(Formatting.GREEN)
+                    }, false
                 )
             })
             return TeleportToOtherResult.TELEPORT_DONE
