@@ -48,7 +48,7 @@ object ClassicCommands {
                     )
                 )
             })
-            Homabric.logger.info("[Homabric:INFO] Classic commands enabled!")
+            Homabric.logger.info("Classic commands enabled!")
         }
     }
 }

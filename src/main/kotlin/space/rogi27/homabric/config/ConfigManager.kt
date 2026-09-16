@@ -2,6 +2,7 @@ package space.rogi27.homabric.config
 
 import net.fabricmc.loader.api.FabricLoader
 import org.spongepowered.configurate.hocon.HoconConfigurationLoader
+import space.rogi27.homabric.Homabric
 import java.nio.file.Files
 
 abstract class ConfigFile<T : Any>(
@@ -18,6 +19,7 @@ abstract class ConfigFile<T : Any>(
 
     init {
         @Suppress("LeakingThis")
+        Homabric.logger.info("Loading config file $fileName")
         ConfigManager.register(this)
     }
 
