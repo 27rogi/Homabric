@@ -12,7 +12,7 @@ jobs:
       - name: validate gradle wrapper
         uses: gradle/actions/wrapper-validation@v4
       - name: setup jdk 25
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 25
@@ -28,11 +28,14 @@ jobs:
           modrinth-id: yfRb7tkQ
           modrinth-featured: true
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+
           curseforge-id: 558888
           curseforge-token: ${{ secrets.CURSE_TOKEN }}
+
           files-primary: build/libs/!(*-@(dev|sources|shadow|all)).jar
           version: ${{ github.ref_name }}
-          version-resolver: releases
+
+          game-version-filter: releases
           loaders: |
             fabric
             quilt
