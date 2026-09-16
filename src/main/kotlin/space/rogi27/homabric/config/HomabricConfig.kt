@@ -1,40 +1,48 @@
 package space.rogi27.homabric.config
 
-import me.lortseam.completeconfig.api.ConfigContainer
-import me.lortseam.completeconfig.api.ConfigEntry
+import org.spongepowered.configurate.objectmapping.ConfigSerializable
+import org.spongepowered.configurate.objectmapping.meta.Comment
+import org.spongepowered.configurate.objectmapping.meta.Setting
 import space.rogi27.homabric.objects.HomePermissionObject
 
-object HomabricConfig:ConfigContainer {
-    @ConfigEntry(
-        comment = "Examples and help: https://github.com/rogi27/Homabric/blob/master/README.md#configuration" + "Do not touch this value, it allows mod to check if config file is outdated or not."
-    )
-    var configVersion = 3
-    
-    @ConfigEntry(comment = "This option enables alternative command variants like /sethome, /removehome and etc.")
-    private var enableClassicCommands = true
-    
-    @ConfigEntry(comment = "Sets the maximum amount of homes per player.")
-    private var homesLimit = 2
-    
-    @ConfigEntry(
-        comment = "Sets the timeout in seconds before player will be teleported home." + "\nYou can disable this feature by setting it to 0."
-    )
-    private var teleportCooldown = 3
-    
-    @ConfigEntry(
-        comment = "You can define permissions that will override home limit for the players if they have them." + "\nPermission names are transformed to permissions like 'homabric.homelimit.<permissionName>'" + "\nExample permission: vip: { max-homes=6 }" + "\nIf you want to disable limit use 'homabric.limit.bypass' permission."
-    )
-    var permissionsHomeLimit: Map<String, HomePermissionObject> = HashMap()
-    
-    fun teleportCooldown(): Int {
-        return teleportCooldown
+object HomabricConfig : ConfigFile<HomabricConfig.Config>("config.conf", Config::class.java, ::Config) {
+
+    @ConfigSerializable
+    class Config {
+        @Setting("config-version")
+        @Comment(
+            "Examples and help: https://github.com/rogi27/Homabric/blob/master/README.md#configuration\n" +
+                    "Do not touch this value, it allows mod to check if config file is outdated or not."
+        )
+        var configVersion: Int = 3
+
+        @Setting("enable-classic-commands")
+        @Comment("This option enables alternative command variants like /sethome, /removehome and etc.")
+        var classicCommandsEnabled: Boolean = true
+
+        @Setting("homes-limit")
+        @Comment("Sets the maximum amount of homes per player.")
+        var homesLimit: Int = 2
+
+        @Setting("teleport-cooldown")
+        @Comment(
+            "Sets the timeout in seconds before player will be teleported home.\n" +
+                    "You can disable this feature by setting it to 0."
+        )
+        var teleportCooldown: Int = 3
+
+        @Setting("permissions-home-limit")
+        @Comment(
+            "You can define permissions that will override home limit for the players if they have them.\n" +
+                    "Permission names are transformed to permissions like 'homabric.homelimit.<permissionName>'\n" +
+                    "Example permission: vip: { max-homes=6 }\n" +
+                    "If you want to disable limit use 'homabric.limit.bypass' permission."
+        )
+        var permissionsHomeLimit: Map<String, HomePermissionObject> = emptyMap()
     }
-    
-    fun areClassicCommandsEnabled(): Boolean {
-        return enableClassicCommands
-    }
-    
-    fun homesLimit(): Int {
-        return homesLimit
-    }
+
+    fun teleportCooldown(): Int = entries.teleportCooldown
+    fun areClassicCommandsEnabled(): Boolean = entries.classicCommandsEnabled
+    fun homesLimit(): Int = entries.homesLimit
+    val permissionsHomeLimit: Map<String, HomePermissionObject> get() = entries.permissionsHomeLimit
 }

@@ -1,14 +1,15 @@
 package space.rogi27.homabric.objects
 
-import net.minecraft.item.Items
-import net.minecraft.particle.ParticleTypes
-import net.minecraft.registry.Registries
-import net.minecraft.registry.RegistryKey
-import net.minecraft.registry.RegistryKeys
-import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.util.Identifier
+import net.minecraft.core.particles.ParticleTypes
+import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.core.registries.Registries
+import net.minecraft.resources.Identifier
+import net.minecraft.resources.ResourceKey
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.item.Items
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
 import org.spongepowered.configurate.objectmapping.meta.Comment
+import space.rogi27.homabric.Homabric
 import java.util.*
 
 @ConfigSerializable
@@ -38,31 +39,39 @@ class HomeObject {
             this.allowedPlayers = allowedPlayers
         }
         if (icon == null) {
-            this.icon = Identifier("minecraft:map").toString()
+            this.icon = Identifier.fromNamespaceAndPath("minecraft", "map").toString()
         } else {
             this.icon = icon.toString()
         }
         return this
     }
     
-    fun teleportPlayer(player: ServerPlayerEntity): Boolean {
-        val homeWorld = player.getServer()!!.getWorld(
-            RegistryKey.of(
-                RegistryKeys.WORLD, Identifier(
-                    world
-                )
-            )
-        )
-        val oldPos = player.pos
-        player.teleport(homeWorld, x, y, z, yaw, pitch)
+    fun teleportPlayer(player: ServerPlayer): Boolean {
+        val server = player.level().server
 
-        // workaround for bug when xp is missing after teleporting between dimensions
-        if (!player.isDead) {
-            player.addExperience(0)
+        val dimensionId = world?.let { Identifier.tryParse(it) }
+        if (dimensionId === null) {
+            Homabric.logger.error("Unable to parse identifier $world from config!")
+            return false
         }
 
-        player.getWorld().spawnParticles(ParticleTypes.GLOW_SQUID_INK, oldPos.x, oldPos.y, oldPos.z, 50, 2.0, 2.0, 2.0, 0.1)
-        player.getWorld().spawnParticles(ParticleTypes.GLOW_SQUID_INK, x, y, z, 50, 2.0, 2.0, 2.0, 0.1)
+        val worldKey = ResourceKey.create(Registries.DIMENSION, dimensionId)
+        val homeLevel = server.getLevel(worldKey)
+        if (homeLevel === null) {
+            Homabric.logger.error("Error while teleporting player! Unable to find level $homeLevel")
+            return false
+        }
+
+        val oldPos = player.position()
+        player.teleportTo(homeLevel, x, y, z, emptySet(), yaw, pitch, true)
+
+        // workaround for bug when xp is missing after teleporting between dimensions
+        if (!player.isDeadOrDying) {
+            player.giveExperiencePoints(0)
+        }
+
+        player.level().sendParticles(ParticleTypes.GLOW_SQUID_INK, oldPos.x, oldPos.y, oldPos.z, 50, 2.0, 2.0, 2.0, 0.1)
+        player.level().sendParticles(ParticleTypes.GLOW_SQUID_INK, x, y, z, 50, 2.0, 2.0, 2.0, 0.1)
         return true
     }
     
@@ -82,7 +91,7 @@ class HomeObject {
     }
     
     fun setIcon(item: Identifier): IconResult {
-        if (Registries.ITEM[item] === Items.AIR) {
+        if (BuiltInRegistries.ITEM[item].get().value() === Items.AIR) {
             return IconResult.WRONG_ICON
         }
         icon = item.toString()

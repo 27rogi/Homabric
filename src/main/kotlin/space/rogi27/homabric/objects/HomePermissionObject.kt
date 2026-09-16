@@ -1,10 +1,10 @@
 package space.rogi27.homabric.objects
 
-import me.lortseam.completeconfig.api.ConfigEntry
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
+import org.spongepowered.configurate.objectmapping.meta.Comment
 
 @ConfigSerializable
 class HomePermissionObject {
-    @ConfigEntry(comment = "Sets the maximum amount of homes per player.")
+    @Comment("Sets the maximum amount of homes per player.")
     var maxHomes = 2
 }

@@ -22,7 +22,10 @@
     ]
   },
   "depends": {
-    "fabricloader": ">=0.8.7",
-    "fabric-language-kotlin": "*"
+    "fabricloader": ">=0.17.0",
+    "fabric-api": "*",
+    "fabric-language-kotlin": "*",
+    "fabric-permissions-api-v0": "*",
+    "sgui": "*"
   }
 }

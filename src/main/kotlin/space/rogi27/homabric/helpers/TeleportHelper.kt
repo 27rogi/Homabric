@@ -1,10 +1,10 @@
 package space.rogi27.homabric.helpers
 
 import me.lucko.fabric.api.permissions.v0.Permissions
-import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.text.Text.literal
-import net.minecraft.text.Text.translatable
-import net.minecraft.util.Formatting
+import net.minecraft.ChatFormatting
+import net.minecraft.network.chat.Component.literal
+import net.minecraft.network.chat.Component.translatable
+import net.minecraft.server.level.ServerPlayer
 import space.rogi27.homabric.Homabric
 import space.rogi27.homabric.config.HomabricConfig
 import java.util.*
@@ -12,55 +12,55 @@ import java.util.*
 object TeleportHelper {
     private val teleportingPlayers = HashMap<String, Int>()
     
-    fun isTeleporting(player: ServerPlayerEntity): Boolean {
-        return teleportingPlayers.contains(player.uuidAsString)
+    fun isTeleporting(player: ServerPlayer): Boolean {
+        return teleportingPlayers.contains(player.stringUUID)
     }
     
-    fun stopTeleport(timer: Timer, player: ServerPlayerEntity) {
+    fun stopTeleport(timer: Timer, player: ServerPlayer) {
         timer.cancel()
-        teleportingPlayers.remove(player.uuidAsString)
+        teleportingPlayers.remove(player.stringUUID)
     }
     
-    fun runTeleport(player: ServerPlayerEntity, onFinish: () -> Unit) {
+    fun runTeleport(player: ServerPlayer, onFinish: () -> Unit) {
         // bypass cooldown for players with permission OR if it was disabled in config
         if ((Permissions.check(player, "homabric.teleport.bypass", 2) || (HomabricConfig.teleportCooldown() == 0))) {
             return onFinish()
         }
         
-        val firstPos = player.pos
+        val firstPos = player.position()
         val firstHealth = player.health
         val timer = Timer()
         
         // be sure to have player only once to prevent bugs
-        if (teleportingPlayers[player.uuidAsString] != null) {
-            return player.sendMessage(translatable("text.homabric.teleport_already_in").formatted(Formatting.YELLOW), false)
+        if (teleportingPlayers[player.stringUUID] != null) {
+            return player.sendSystemMessage(translatable("text.homabric.teleport_already_in").withStyle(ChatFormatting.YELLOW), false)
         }
-        teleportingPlayers[player.uuidAsString] = HomabricConfig.teleportCooldown()
+        teleportingPlayers[player.stringUUID] = HomabricConfig.teleportCooldown()
         
         timer.scheduleAtFixedRate(object:TimerTask() {
             override fun run() {
-                if (player.isDisconnected) {
+                if (player.hasDisconnected()) {
                     stopTeleport(timer, player)
-                    return Homabric.logger.info("Player ${player.entityName} disconnected before teleportation.")
+                    return Homabric.logger.info("Player ${player.gameProfile.name} disconnected before teleportation.")
                 }
                 
-                if ((firstPos != player.pos) || (firstHealth > player.health)) {
+                if ((firstPos != player.position()) || (firstHealth > player.health)) {
                     stopTeleport(timer, player)
-                    return player.sendMessage(translatable("text.homabric.teleport_canceled").formatted(Formatting.RED), false)
+                    return player.sendSystemMessage(translatable("text.homabric.teleport_canceled").withStyle(ChatFormatting.RED), false)
                 }
                 
-                teleportingPlayers[player.uuidAsString] = teleportingPlayers[player.uuidAsString]!!.minus(1)
+                teleportingPlayers[player.stringUUID] = teleportingPlayers[player.stringUUID]!!.minus(1)
                 
-                if (teleportingPlayers[player.uuidAsString]!! < 0) {
+                if (teleportingPlayers[player.stringUUID]!! < 0) {
                     stopTeleport(timer, player)
                     return onFinish()
                 }
                 
                 // adding 1 because timer starts from 0 which is not right from player's perspective
-                player.sendMessage(
+                player.sendSystemMessage(
                     translatable(
-                        "text.homabric.teleport_in_progress", literal((teleportingPlayers[player.uuidAsString]!! + 1).toString()).formatted(Formatting.AQUA)
-                    ).formatted(Formatting.YELLOW), true
+                        "text.homabric.teleport_in_progress", literal((teleportingPlayers[player.stringUUID]!! + 1).toString()).withStyle(ChatFormatting.AQUA)
+                    ).withStyle(ChatFormatting.YELLOW), true
                 )
             }
         }, 0, 1000)

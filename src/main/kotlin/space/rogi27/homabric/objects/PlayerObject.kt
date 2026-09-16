@@ -3,20 +3,23 @@ package space.rogi27.homabric.objects
 import com.mojang.brigadier.exceptions.CommandSyntaxException
 import eu.pb4.sgui.api.ClickType
 import eu.pb4.sgui.api.elements.GuiElementBuilder
-import eu.pb4.sgui.api.elements.GuiElementInterface
 import eu.pb4.sgui.api.gui.SimpleGui
+import eu.pb4.sgui.api.gui.SlotBasedGui
 import me.lucko.fabric.api.permissions.v0.Permissions
-import net.minecraft.registry.Registries
-import net.minecraft.screen.ScreenHandlerType
-import net.minecraft.screen.slot.SlotActionType
-import net.minecraft.server.command.ServerCommandSource
-import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.text.Text
-import net.minecraft.util.Formatting
-import net.minecraft.util.Identifier
+import net.minecraft.ChatFormatting
+import net.minecraft.commands.CommandSourceStack
+import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.network.chat.Component
+import net.minecraft.resources.Identifier
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.server.permissions.PermissionLevel
+import net.minecraft.world.inventory.ContainerInput
+import net.minecraft.world.inventory.MenuType
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
 import org.spongepowered.configurate.objectmapping.meta.Comment
-import space.rogi27.homabric.Homabric
+import space.rogi27.homabric.config.ConfigManager
 import space.rogi27.homabric.config.HomabricConfig
 import space.rogi27.homabric.config.HomesConfig
 import space.rogi27.homabric.helpers.TeleportHelper
@@ -38,9 +41,9 @@ class PlayerObject {
     
     // TODO: Find better and efficient way for checking permissions
     // Maybe use groups instead?
-    fun isLimitReached(player: ServerCommandSource?): Boolean {
-        if (player == null || player.player == null) return false
-        if (Permissions.check(player.player!!, "homabric.limit.bypass", 2)) return false
+    fun isLimitReached(player: CommandSourceStack?): Boolean {
+        if (player?.player == null) return false
+        if (Permissions.check(player.player!!, "homabric.limit.bypass", PermissionLevel.MODERATORS)) return false
 
         val homesLimit = AtomicInteger(-1)
         HomabricConfig.permissionsHomeLimit.forEach { (key: String, permissionObject: HomePermissionObject) ->
@@ -61,7 +64,7 @@ class PlayerObject {
         } else homes!!.size >= homesLimit.get()
     }
     
-    fun getHomeLimit(player: ServerCommandSource?): Int {
+    fun getHomeLimit(player: CommandSourceStack?): Int {
         val homesLimit = AtomicInteger(-1)
         HomabricConfig.permissionsHomeLimit.forEach { (key: String, permissionObject: HomePermissionObject) ->
             if (Permissions.check(
@@ -82,60 +85,61 @@ class PlayerObject {
     }
     
     @Throws(CommandSyntaxException::class)
-    fun createOrUpdateHome(player: ServerCommandSource, homeName: String): HomeCreationResult {
+    fun createOrUpdateHome(player: CommandSourceStack, homeName: String): HomeCreationResult {
         var result = HomeCreationResult.HOME_CREATED
         val home = homes!![homeName]
         var icon: Identifier? = null
         var allowedPlayers: ArrayList<String>? = ArrayList()
         if (home != null) {
-            icon = Identifier.tryParse(home.icon)
-            if (home.allowedPlayers!!.size > 0) allowedPlayers = home.allowedPlayers
+            icon = home.icon?.let { Identifier.tryParse(it) }
+            if (home.allowedPlayers!!.isNotEmpty()) allowedPlayers = home.allowedPlayers
             result = HomeCreationResult.HOME_UPDATED
         }
         homes?.set(
             homeName, HomeObject().withData(
-                player.world.registryKey.value.toString(), player.position.x, player.position.y, player.position.z, player.player!!.headYaw, player.player!!.pitch, allowedPlayers, icon
+                player.level.dimension().identifier().toString(), player.position.x, player.position.y, player.position.z, player.player!!.yRot, player.player!!.xRot, allowedPlayers, icon
             )
         )
-        Homabric.saveAndReloadConfig()
+        ConfigManager.saveAndLoadAll()
         return result
     }
     
     @Throws(CommandSyntaxException::class)
-    fun getHomesGUI(source: ServerCommandSource): SimpleGui {
-        val gui = SimpleGui(ScreenHandlerType.GENERIC_9X6, source.player, false)
+    fun getHomesGUI(source: CommandSourceStack): SimpleGui {
+        val gui = SimpleGui(MenuType.GENERIC_9x6, source.player, false)
         val index = AtomicInteger()
         homes?.forEach { (key: String?, data: HomeObject?) ->
-            val lore = ArrayList<Text>()
+            val lore = ArrayList<Component>()
             lore.add(
-                Text.translatable(
-                    "X: %s Y: %s Z: %s", Text.literal(java.lang.String.valueOf(data!!.x)).formatted(Formatting.GREEN), Text.literal(java.lang.String.valueOf(data.y)).formatted(Formatting.GREEN), Text.literal(java.lang.String.valueOf(data.z)).formatted(Formatting.GREEN)
-                ).formatted(Formatting.GRAY)
+                Component.translatable(
+                    "X: %s Y: %s Z: %s", Component.literal(java.lang.String.valueOf(data!!.x)).withStyle(ChatFormatting.GREEN), Component.literal(java.lang.String.valueOf(data.y)).withStyle(ChatFormatting.GREEN), Component.literal(java.lang.String.valueOf(data.z)).withStyle(ChatFormatting.GREEN)
+                ).withStyle(ChatFormatting.GRAY)
             )
             lore.add(
-                Text.translatable(
-                    "text.homabric.gui_lore_world", Text.literal(data.world).formatted(Formatting.GREEN)
-                ).formatted(Formatting.GRAY)
+                Component.translatable(
+                    "text.homabric.gui_lore_world", Component.literal(data.world!!).withStyle(ChatFormatting.GREEN)
+                ).withStyle(ChatFormatting.GRAY)
             )
             if (data.allowedPlayers!!.size > 0) lore.add(
-                Text.translatable(
-                    "text.homabric.gui_lore_allowed", Text.literal(
+                Component.translatable(
+                    "text.homabric.gui_lore_allowed", Component.literal(
                         java.lang.String.join(
                             ",", data.allowedPlayers
                         )
-                    ).formatted(Formatting.GREEN)
+                    ).withStyle(ChatFormatting.GREEN)
                 )
             )
-            val slotItem: GuiElementInterface = GuiElementBuilder.from(
-                Registries.ITEM[Identifier.tryParse(data.icon)].defaultStack
-            ).setName(Text.literal(key).formatted(Formatting.YELLOW)).setLore(lore).setCallback { _: Int, _: ClickType?, _: SlotActionType? ->
+            val slotItemId = data.icon?.let { Identifier.tryParse(it) }
+            val slotItem = GuiElementBuilder.from(
+                ItemStack(BuiltInRegistries.ITEM.getOptional(slotItemId).orElse(Items.AIR))
+            ).setName(Component.literal(key!!).withStyle(ChatFormatting.YELLOW)).setLore(lore).setCallback { _: Int, _: ClickType?, _: ContainerInput?, _: SlotBasedGui ->
                 gui.close()
                 TeleportHelper.runTeleport(source.player!!, fun() {
                     data.teleportPlayer(source.player!!)
-                    source.sendFeedback(
-                        Text.translatable(
-                            "text.homabric.teleport_done", Text.literal(key).formatted(Formatting.WHITE)
-                        ).formatted(Formatting.GREEN), false
+                    source.sendSystemMessage(
+                        Component.translatable(
+                            "text.homabric.teleport_done", Component.literal(key).withStyle(ChatFormatting.WHITE)
+                        ).withStyle(ChatFormatting.GREEN)
                     )
                 })
             }.build()
@@ -143,8 +147,8 @@ class PlayerObject {
             index.getAndIncrement()
         }
         gui.lockPlayerInventory = true
-        gui.title = Text.translatable(
-            "text.homabric.gui_title", Text.literal(source.name).formatted(Formatting.DARK_BLUE), Text.literal(homes!!.size.toString()), Text.literal(getHomeLimit(source).toString()).formatted(Formatting.DARK_BLUE)
+        gui.title = Component.translatable(
+            "text.homabric.gui_title", Component.literal(source.textName).withStyle(ChatFormatting.DARK_BLUE), Component.literal(homes!!.size.toString()), Component.literal(getHomeLimit(source).toString()).withStyle(ChatFormatting.DARK_BLUE)
         )
         return gui
     }
@@ -154,7 +158,7 @@ class PlayerObject {
             return HomeRemoveResult.NO_HOME
         }
         homes!!.remove(name)
-        Homabric.saveAndReloadConfig()
+        ConfigManager.saveAndLoadAll()
         return HomeRemoveResult.HOME_REMOVED
     }
     
@@ -170,19 +174,19 @@ class PlayerObject {
             return names
         }
     
-    fun allowHome(name: String, allowedPlayer: ServerPlayerEntity?): HomeAllowResult {
+    fun allowHome(name: String, allowedPlayer: ServerPlayer?): HomeAllowResult {
         if (allowedPlayer == null) {
             return HomeAllowResult.NO_PLAYER
         }
-        if (HomesConfig.getPlayer(allowedPlayer.entityName) == this) {
+        if (HomesConfig.getPlayer(allowedPlayer.gameProfile.name) == this) {
             return HomeAllowResult.NO_SELF_ALLOW
         }
         val home = getHome(name) ?: return HomeAllowResult.NO_HOME
-        if (home.isAllowedFor(allowedPlayer.entityName)) {
+        if (home.isAllowedFor(allowedPlayer.gameProfile.name)) {
             return HomeAllowResult.ALREADY_ALLOWED
         }
-        home.allowFor(allowedPlayer.entityName)
-        Homabric.saveAndReloadConfig()
+        home.allowFor(allowedPlayer.gameProfile.name)
+        ConfigManager.saveAndLoadAll()
         return HomeAllowResult.HOME_ALLOWED
     }
     
@@ -192,7 +196,7 @@ class PlayerObject {
             return HomeDisallowResult.NOT_ALLOWED
         }
         home.disallowFor(disallowedPlayer)
-        Homabric.saveAndReloadConfig()
+        ConfigManager.saveAndLoadAll()
         return HomeDisallowResult.HOME_ALLOWED
     }
     
@@ -201,7 +205,7 @@ class PlayerObject {
         if (homes == null) return null
         homes!!.forEach { (key: String, home: HomeObject?) ->
             if (home!!.allowedPlayers != null && home.allowedPlayers!!.contains(name)) names.add(key)
-            Homabric.saveAndReloadConfig()
+            ConfigManager.saveAndLoadAll()
         }
         return names
     }
@@ -232,19 +236,19 @@ class PlayerObject {
     
     companion object {
         @Throws(CommandSyntaxException::class)
-        fun teleportToOtherHome(source: ServerCommandSource, playerName: String?, homeName: String, force: Boolean): TeleportToOtherResult {
+        fun teleportToOtherHome(source: CommandSourceStack, playerName: String?, homeName: String, force: Boolean): TeleportToOtherResult {
             val player = source.player!!
             val owner: PlayerObject = HomesConfig.getPlayer(playerName!!) ?: return TeleportToOtherResult.NO_PLAYER
             val home = owner.getHome(homeName) ?: return TeleportToOtherResult.NO_HOME
             if (!force) {
-                if (!home.isAllowedFor(player.entityName)) {
+                if (!home.isAllowedFor(player.name.toString())) {
                     return TeleportToOtherResult.NO_ACCESS
                 }
             }
             TeleportHelper.runTeleport(player, fun() {
                 home.teleportPlayer(player)
-                source.sendFeedback(
-                    Text.translatable("text.homabric.teleport_done", Text.literal(homeName).formatted(Formatting.WHITE)).formatted(Formatting.GREEN), false
+                source.sendSystemMessage(
+                    Component.translatable("text.homabric.teleport_done", Component.literal(homeName).withStyle(ChatFormatting.WHITE)).withStyle(ChatFormatting.GREEN)
                 )
             })
             return TeleportToOtherResult.TELEPORT_DONE
