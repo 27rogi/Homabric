@@ -1,9 +1,15 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
 	id("net.fabricmc.fabric-loom")
 	`maven-publish`
 	id("org.jetbrains.kotlin.jvm")
+}
+
+version = "${property("mod_version")}+${property("minecraft_version_group")}"
+group = property("maven_group") as String
+
+base {
+	archivesName = property("archives_base_name") as String
 }
 
 repositories {
@@ -26,7 +32,11 @@ loom {
 		}
 	}
 }
- 
+
+val makeTransitive: Configuration = configurations.create("makeTransitive") {
+	isTransitive = true
+}
+
 dependencies {
 	minecraft("com.mojang:minecraft:${providers.gradleProperty("minecraft_version").get()}")
 	implementation("net.fabricmc:fabric-loader:${providers.gradleProperty("loader_version").get()}")
@@ -39,8 +49,18 @@ dependencies {
 	implementation(include("me.lucko:fabric-permissions-api:${providers.gradleProperty("fabric_permissions_api_version").get()}")!!)
 	implementation(include("eu.pb4:sgui:${providers.gradleProperty("sgui_version").get()}")!!)
 	implementation(include("xyz.nucleoid:server-translations-api:${providers.gradleProperty("server_translations_api_version").get()}")!!)
-	implementation(include("org.spongepowered:configurate-hocon:${providers.gradleProperty("configurate_version").get()}")!!)
-	implementation(include("org.spongepowered:configurate-extra-kotlin:${providers.gradleProperty("configurate_version").get()}")!!)
+
+	makeTransitive("org.spongepowered:configurate-hocon:${providers.gradleProperty("configurate_version").get()}")
+	makeTransitive("org.spongepowered:configurate-extra-kotlin:${providers.gradleProperty("configurate_version").get()}") {
+		exclude(group = "org.jetbrains.kotlin")
+	}
+}
+
+makeTransitive.resolvedConfiguration.resolvedArtifacts.forEach { artifact ->
+	val id = artifact.moduleVersion.id
+	val notation = "${id.group}:${id.name}:${id.version}"
+	dependencies.add("include", notation)
+	dependencies.add("implementation", notation)
 }
 
 tasks.withType<JavaCompile>().configureEach {
@@ -62,6 +82,14 @@ java {
 
 	sourceCompatibility = JavaVersion.VERSION_25
 	targetCompatibility = JavaVersion.VERSION_25
+}
+
+tasks.processResources {
+	inputs.property("version", version)
+
+	filesMatching("fabric.mod.json") {
+		expand("version" to version)
+	}
 }
 
 tasks.jar {
