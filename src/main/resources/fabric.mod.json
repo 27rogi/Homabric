@@ -5,10 +5,10 @@
   "name": "Homabric",
   "description": "Little yet powerful home management mod that works on server or client.",
   "authors": [
-    "Rogi27"
+    "27rogi"
   ],
   "contact": {
-    "sources": "https://github.com/rogi27/homabric"
+    "sources": "https://github.com/27rogi/homabric"
   },
   "license": "LGPLv3",
   "icon": "assets/homabric/icon.png",
