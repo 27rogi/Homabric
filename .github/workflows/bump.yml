@@ -35,26 +35,35 @@ jobs:
 
       - name: verify version
         run: |
-          if [ -z "${{ steps.semver.outputs.version-string }}" ]; then
-            echo "::error::git-auto-semver returned an empty version-string"
+          VERSION="${{ steps.semver.outputs['version-string'] }}"
+          
+          if [ -z "$VERSION" ]; then
+            echo "git-auto-semver returns empty version"
             exit 1
           fi
+          
+          echo "Next version: $VERSION"
 
       - name: update mod_version
         run: |
-          sed -i "s/^mod_version=.*/mod_version=${{ steps.semver.outputs.version-string }}/" gradle.properties
+          VERSION="${{ steps.semver.outputs['version-string'] }}"
+          sed -i "s/^mod_version=.*/mod_version=${VERSION}/" gradle.properties
 
       - name: commit and tag
         id: tag
         run: |
-          TAG="${{ github.ref_name }}-v${{ steps.semver.outputs.version-string }}"
+          VERSION="${{ steps.semver.outputs['version-string'] }}"
+          TAG="${{ github.ref_name }}-v${VERSION}"
+          
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          
           git add gradle.properties
           git commit -m "chore: release ${TAG} [skip ci]"
           git tag "$TAG"
-          git push origin HEAD:${{ github.ref_name }}
+          git push origin "HEAD:${{ github.ref_name }}"
           git push origin "$TAG"
+          
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
   autorelease:
@@ -65,5 +74,5 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.RELEASE_PAT }}
-          tag_name: ${{ needs.version.outputs.tag }}
+          tag_name: ${{ needs.bump.outputs.tag }}
           generate_release_notes: true
