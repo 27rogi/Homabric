@@ -20,7 +20,7 @@ jobs:
 
       - name: bump version and release
         env:
-          GH_TOKEN: ${{ secrets.RELEASE_PAT }}
+          GH_TOKEN: ${{ secrets.AUTORELEASE_TOKEN }}
         run: |
           MC_VERSION=$(grep -m1 '^minecraft_version=' gradle.properties | cut -d= -f2 | tr -d '[:space:]')
           CURRENT=$(grep -m1 '^mod_version=' gradle.properties | cut -d= -f2 | tr -d '[:space:]')
