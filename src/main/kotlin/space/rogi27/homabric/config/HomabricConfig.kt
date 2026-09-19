@@ -20,6 +20,10 @@ object HomabricConfig : ConfigFile<HomabricConfig.Config>("config.conf", Config:
         @Comment("This option enables alternative command variants like /sethome, /removehome and etc.")
         var classicCommandsEnabled: Boolean = true
 
+        @Setting("command-aliases")
+        @Comment("Allows you to specify which home control command aliases can be registered.")
+        var commandAliases: Array<String> = arrayOf("home", "homes", "h")
+
         @Setting("homes-limit")
         @Comment("Sets the maximum amount of homes per player.")
         var homesLimit: Int = 2
