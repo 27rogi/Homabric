@@ -10,8 +10,8 @@ import space.rogi27.homabric.Homabric
 import space.rogi27.homabric.config.HomabricConfig
 import space.rogi27.homabric.helpers.Completables
 
-object ClassicCommands {
-    fun init() {
+object ClassicCommands: RegistrableCommand {
+    override fun register(): Boolean {
         if (HomabricConfig.entries.classicCommandsEnabled) {
             CommandRegistrationCallback.EVENT.register(CommandRegistrationCallback { dispatcher, _, _ ->
                 dispatcher.register(

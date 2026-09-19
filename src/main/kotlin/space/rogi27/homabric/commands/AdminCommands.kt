@@ -19,8 +19,8 @@ import space.rogi27.homabric.helpers.TeleportHelper
 import space.rogi27.homabric.objects.HomeObject
 import space.rogi27.homabric.objects.PlayerObject
 
-object AdminCommands {
-    fun init() {
+object AdminCommands: RegistrableCommand {
+    override fun register(): Boolean {
         CommandRegistrationCallback.EVENT.register(CommandRegistrationCallback { dispatcher, _, _ ->
             dispatcher.register(
                 Commands.literal("homabric").requires(Permissions.require("homabric.admin.use", PermissionLevel.GAMEMASTERS)).then(
