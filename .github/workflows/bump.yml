@@ -1,6 +1,7 @@
 name: Bump and Release
 on:
   push:
+    branches: ['*-v[0-9]*']
 
 concurrency:
   group: "${{ github.ref }}-${{ github.workflow }}"
@@ -12,58 +13,64 @@ jobs:
     permissions:
       contents: write
     outputs:
-      tag: ${{ steps.tag.outputs.tag }}
+      tag: ${{ steps.commit.outputs.tag }}
+      changelog: ${{ steps.changelog.outputs.changelog }}
     steps:
       - name: checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           fetch-tags: true
-
-      - name: read current version
-        id: current
-        run: |
-          CURRENT=$(grep -m1 '^mod_version=' gradle.properties | cut -d'=' -f2 | tr -d '[:space:]')
-          echo "current=$CURRENT" >> "$GITHUB_OUTPUT"
-
-      - name: get next version
-        id: semver
-        uses: bitshifted/git-auto-semver@v2
+      - name: calculate next version
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6
         with:
-          initial_version: ${{ steps.current.outputs.current }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           tag_prefix: "${{ github.ref_name }}-v"
-
-      - name: verify version
+          dry_run: true
+      - name: use commits as changelog
+        id: changelog
+        if: steps.tag_version.outputs.new_version != ''
         run: |
-          if [ -z "${{ steps.semver.outputs.version-string }}" ]; then
-            echo "::error::git-auto-semver returned an empty version-string"
-            exit 1
+          PREV="${{ steps.tag_version.outputs.previous_tag }}"
+          if [ -n "$PREV" ] && [ "$PREV" != "v0.0.0" ]; then
+            RANGE="${PREV}..HEAD"
+          else
+            RANGE="HEAD"
           fi
-
-      - name: update mod_version
+          {
+            echo "changelog<<CHANGELOG_EOF"
+            git log "$RANGE" --no-merges --pretty=format:'%s'
+            echo ""
+            echo "CHANGELOG_EOF"
+          } >> "$GITHUB_OUTPUT"
+      - name: update version, commit and tag
+        id: commit
+        if: steps.tag_version.outputs.new_version != ''
         run: |
-          sed -i "s/^mod_version=.*/mod_version=${{ steps.semver.outputs.version-string }}/" gradle.properties
+          VERSION="${{ steps.tag_version.outputs.new_version }}"
+          TAG="${{ github.ref_name }}-v${VERSION}"
 
-      - name: commit and tag
-        id: tag
-        run: |
-          TAG="${{ github.ref_name }}-v${{ steps.semver.outputs.version-string }}"
+          sed -i "s/^mod_version=.*/mod_version=${VERSION}/" gradle.properties
+
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add gradle.properties
-          git commit -m "chore: release ${TAG} [skip ci]"
+          git commit -m "release: ${TAG} [skip ci]"
           git tag "$TAG"
-          git push origin HEAD:${{ github.ref_name }}
+          git push origin "HEAD:${{ github.ref_name }}"
           git push origin "$TAG"
+
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
   autorelease:
     needs: bump
+    if: needs.bump.outputs.tag != ''
     runs-on: ubuntu-latest
     steps:
       - name: create github release
         uses: softprops/action-gh-release@v2
         with:
-          token: ${{ secrets.RELEASE_PAT }}
-          tag_name: ${{ needs.version.outputs.tag }}
-          generate_release_notes: true
+          token: ${{ secrets.AUTORELEASE_TOKEN }}
+          tag_name: ${{ needs.bump.outputs.tag }}
+          body: ${{ needs.bump.outputs.changelog }}
