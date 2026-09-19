@@ -22,6 +22,7 @@ import net.minecraft.server.permissions.PermissionLevel
 import net.minecraft.world.item.ItemStack
 import space.rogi27.homabric.Homabric
 import space.rogi27.homabric.config.ConfigManager
+import space.rogi27.homabric.config.HomabricConfig
 import space.rogi27.homabric.config.HomesConfig.getOrCreatePlayer
 import space.rogi27.homabric.helpers.Completables.suggestAllowedHomes
 import space.rogi27.homabric.helpers.Completables.suggestOnlinePlayerStrings
@@ -33,8 +34,8 @@ import space.rogi27.homabric.objects.PlayerObject
 object BaseCommands {
     fun init() {
         CommandRegistrationCallback.EVENT.register(CommandRegistrationCallback { dispatcher, _, _ ->
-            dispatcher.register(registerBaseCommands("home"))
-            dispatcher.register(registerBaseCommands("h"))
+            val aliases = HomabricConfig.entries.commandAliases
+            aliases.forEach { alias -> dispatcher.register(registerBaseCommands(alias)) }
         })
     }
 
