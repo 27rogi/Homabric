@@ -27,7 +27,30 @@ import java.util.concurrent.atomic.AtomicInteger
 
 @ConfigSerializable
 class PlayerObject {
-    @Comment("List of player homes")
+    enum class HomeCreationResult {
+        HOME_CREATED, HOME_UPDATED
+    }
+
+    enum class HomeRemoveResult {
+        NO_HOME, HOME_REMOVED
+    }
+
+    enum class HomeAllowResult {
+        NO_PLAYER, NO_SELF_ALLOW, NO_HOME, ALREADY_ALLOWED, HOME_ALLOWED
+    }
+
+    enum class HomeDisallowResult {
+        NO_PLAYER, NO_HOME, NOT_ALLOWED, HOME_DISALLOWED
+    }
+
+    enum class TeleportResult {
+        TELEPORT_DONE, NO_PLAYER, NO_HOME
+    }
+
+    enum class TeleportToOtherResult {
+        TELEPORT_DONE, NO_PLAYER, NO_HOME, NO_ACCESS
+    }
+
     var homes: MutableMap<String, HomeObject?>? = null
     
     fun withData(homes: MutableMap<String, HomeObject?>?): PlayerObject {
@@ -96,7 +119,7 @@ class PlayerObject {
                     "text.homabric.gui_lore_world", Component.literal(data.world!!).withStyle(ChatFormatting.GREEN)
                 ).withStyle(ChatFormatting.GRAY)
             )
-            if (data.allowedPlayers!!.size > 0) lore.add(
+            if (data.allowedPlayers!!.isNotEmpty()) lore.add(
                 Component.translatable(
                     "text.homabric.gui_lore_allowed", Component.literal(
                         java.lang.String.join(
@@ -107,7 +130,7 @@ class PlayerObject {
             )
             val slotItemId = data.icon?.let { Identifier.tryParse(it) }
             val slotItem = GuiElementBuilder.from(
-                ItemStack(BuiltInRegistries.ITEM.getOptional(slotItemId).orElse(Items.AIR))
+                ItemStack(BuiltInRegistries.ITEM.getOptional(slotItemId).orElse(Items.AIR)!!)
             ).setName(Component.literal(key!!).withStyle(ChatFormatting.YELLOW)).setLore(lore).setCallback { _: Int, _: ClickType?, _: ContainerInput?, _: SlotBasedGui ->
                 gui.close()
                 TeleportHelper.runTeleport(source.player!!, fun() {
@@ -124,7 +147,10 @@ class PlayerObject {
         }
         gui.lockPlayerInventory = true
         gui.title = Component.translatable(
-            "text.homabric.gui_title", Component.literal(source.textName).withStyle(ChatFormatting.DARK_BLUE), Component.literal(homes!!.size.toString()), Component.literal(getHomeLimit(source).toString()).withStyle(ChatFormatting.DARK_BLUE)
+            "text.homabric.gui_title",
+            Component.literal(source.textName).withStyle(ChatFormatting.DARK_BLUE),
+            Component.literal(homes!!.size.toString()),
+            Component.literal(getHomeLimit(source).let { if (it == Int.MAX_VALUE) "∞" else it.toString() }).withStyle(ChatFormatting.DARK_BLUE)
         )
         return gui
     }
@@ -185,40 +211,30 @@ class PlayerObject {
         }
         return names
     }
-    
-    enum class HomeCreationResult {
-        HOME_CREATED, HOME_UPDATED
+
+    fun teleportToHome(source: CommandSourceStack, homeName: String): TeleportResult {
+        val player = source.player ?: return TeleportResult.NO_PLAYER
+        val home = getHome(homeName) ?: return TeleportResult.NO_HOME
+        TeleportHelper.runTeleport(player, fun() {
+            home.teleportPlayer(player)
+            source.sendSystemMessage(
+                Component.translatable("text.homabric.teleport_done", Component.literal(homeName).withStyle(ChatFormatting.WHITE)).withStyle(ChatFormatting.GREEN)
+            )
+        })
+        return TeleportResult.TELEPORT_DONE
     }
-    
-    enum class HomeRemoveResult {
-        NO_HOME, HOME_REMOVED
-    }
-    
-    enum class HomeAllowResult {
-        NO_PLAYER, NO_SELF_ALLOW, NO_HOME, ALREADY_ALLOWED, HOME_ALLOWED
-    }
-    
-    enum class HomeDisallowResult {
-        NO_PLAYER, NO_HOME, NOT_ALLOWED, HOME_DISALLOWED
-    }
-    
-    enum class TeleportResult {
-        TELEPORT_DONE, NO_HOME
-    }
-    
-    enum class TeleportToOtherResult {
-        TELEPORT_DONE, NO_PLAYER, NO_HOME, NO_ACCESS
-    }
-    
+
     companion object {
         @Throws(CommandSyntaxException::class)
-        fun teleportToOtherHome(source: CommandSourceStack, playerName: String?, homeName: String, force: Boolean): TeleportToOtherResult {
+        fun teleportToOtherHome(source: CommandSourceStack, playerName: String, homeName: String, force: Boolean): TeleportToOtherResult {
             val player = source.player!!
-            val owner: PlayerObject = HomesConfig.getPlayer(playerName!!) ?: return TeleportToOtherResult.NO_PLAYER
+            val owner: PlayerObject = HomesConfig.getPlayer(playerName) ?: return TeleportToOtherResult.NO_PLAYER
             val home = owner.getHome(homeName) ?: return TeleportToOtherResult.NO_HOME
-            if (!force) {
-                if (!home.isAllowedFor(player.name.toString())) {
-                    return TeleportToOtherResult.NO_ACCESS
+            if (player.gameProfile.name != playerName) {
+                if (!force) {
+                    if (!home.isAllowedFor(player.name.toString())) {
+                        return TeleportToOtherResult.NO_ACCESS
+                    }
                 }
             }
             TeleportHelper.runTeleport(player, fun() {

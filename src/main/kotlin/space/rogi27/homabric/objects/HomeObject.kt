@@ -21,10 +21,9 @@ class HomeObject {
     var yaw = 0f
     var pitch = 0f
     
-    @Comment(value = "Icon must be an identifier, for example 'minecraft:cobblestone'")
+    @Comment(value = "Must be an identifier. Example: 'minecraft:cobblestone'")
     var icon: String? = null
-    
-    @Comment(value = "Players that can access this home")
+
     var allowedPlayers: ArrayList<String>? = null
     fun withData(world: String?, x: Double, y: Double, z: Double, yaw: Float, pitch: Float, allowedPlayers: ArrayList<String>?, icon: Identifier?): HomeObject {
         this.world = world

@@ -12,7 +12,7 @@
 <a title="Fabric API" href="https://minecraft.curseforge.com/projects/fabric-api" target="_blank" rel="noopener noreferrer"><img height="40" src="https://i.imgur.com/Ol1Tcf8.png" /></a>
 </div>
 
-> ⚠️This mod is in early stage of development, you can use all functions that are listed below, but they may be changed in future. Code quality might be very poor sometimes and it will be improved in future.
+> ⚠️ This mod is being partially rewritten, you can use all functions that are listed below, but they may be changed in future. Code quality might vary and it will be *hopefully* improved in future.
 
 ### Features
 
@@ -26,8 +26,8 @@
 #### Planned features
 
 - [ ] Ability to define teleport timeout using permissions.
-- [ ] Ability to define `/home` command aliases in config.
 - [ ] Rewrite code for better readability.
+- [x] Ability to define `/home` command aliases in config.
 
 ### Languages
 
@@ -40,17 +40,26 @@
 You can use `homabric.teleport.bypass` permission to bypass teleport timeout.
 To disable limits on homes for players give them `homabric.limit.bypass` permission.
 
-### Players
+You can also specify **aliases** for commands in config.  
+Currently, default aliases are:  
+- Home Teleportation (_home-command-aliases_): `h`, `home`
+- Home Management (_homes-command-aliases_): `hs`, `homes`
 
-- /h **OR** /home `homabric.base.use`
-- /h <name?> `homabric.base.byName`
-- /h set <name?> `homabric.base.set`
-- /h remove <home\> `homabric.base.remove`
-- /h p <player\> <home\> `homabric.base.others`
-- /h list `homabric.base.list`
-- /h allow <player\> <home\> `homabric.base.allow`
-- /h disallow <player\> <home\> `homabric.base.disallow`
-- /h setIcon <home\> <item identificator\> `homabric.base.setIcon`
+### Players
+In many cases `<home?>` defaults to `home` if name is empty
+
+#### Teleportation
+- /h `homabric.base.use`
+- /h <home?> `homabric.base.byName`
+
+#### Management
+- /hs `homabric.base.use` - shows GUI with your homes by default
+- /hs set <home?> `homabric.base.set`
+- /hs remove <home\> `homabric.base.remove`
+- /hs p <player\> <home\> `homabric.base.others`
+- /hs allow <player\> <home\> `homabric.base.allow`
+- /hs disallow <player\> <home\> `homabric.base.disallow`
+- /hs setIcon <home\> <item identificator\> `homabric.base.setIcon`
 
 ### Admins
 
@@ -85,20 +94,31 @@ I developed this mod with simplicity in mind, I decided to store home data insid
 This file stores Homabric settings.
 
 ```shell
-# Do not touch this value, it allows mod to
-# check if config file is outdated or not.
+# Examples and help: https://github.com/rogi27/Homabric/blob/master/README.md#configuration
+# Do not touch this value, it allows mod to check if config file is outdated or not.
 config-version=3
 # This option enables alternative command variants like /sethome, /removehome and etc.
 enable-classic-commands=true
+# Allows you to specify aliases for home teleportation commands.
+home-command-aliases=[
+    home,
+    h
+]
+# Allows you to specify aliases for home management commands.
+homes-command-aliases=[
+    homes,
+    hs
+]
 # Sets the maximum amount of homes per player.
-homes-limit=21
+homes-limit=2
+# Sets the timeout in seconds before player will be teleported home.
+# You can disable this feature by setting it to 0.
+teleport-cooldown=3
 # You can define permissions that will override home limit for the players if they have them.
 # Permission names are transformed to permissions like 'homabric.homelimit.<permissionName>'
 # Example permission: vip: { max-homes=6 }
+# If you want to disable limit use 'homabric.limit.bypass' permission.
 permissions-home-limit {}
-# Sets the timeout in seconds before player will be teleported home.
-# You can disable this feature by setting it to 0.
-teleport-cooldown=5
 ```
 
 ### homabric.homes.conf
@@ -106,42 +126,35 @@ teleport-cooldown=5
 This file contains all homes that are created by players.
 
 ```shell
+# List of players with their homes.
 players {
-        # Player nickname (not a DisplayName)
-        ExamplePlayer {
-            # List of player homes
-            homes {
-                # Name of the home
-                "village" {
-                    # Players that can access this home
-                    allowed-players=[]
-                    # Icon must be an identifier, for example 'minecraft:cobblestone'
-                    icon="minecraft:map"
-                    # World where home is located
-                    world="minecraft:overworld"
-                    # Coordinates, including head position
-                    pitch=7.15
-                    x=160.66
-                    y=72.0
-                    yaw=-51.45
-                    z=-76.45
-                }
-                # Example of home with allowed player 'Rogi27'
-                home {
-                    allowed-players=[
-                        Rogi27
-                    ]
-                    icon="minecraft:iron_shovel"
-                    pitch=8.25
-                    world="minecraft:overworld"
-                    x=1337.3
-                    y=172.0
-                    yaw=123.1
-                    z=276.45
-                }
+    "27rogi" {
+        homes {
+            test {
+                world="minecraft:overworld"
+                x=-2.43
+                y=70.0
+                z=54.55
+                yaw=105.9000015258789
+                pitch=11.850000381469727
+                # Must be an identifier. Example: 'minecraft:cobblestone'
+                icon="minecraft:map"
+                allowed-players=[]
+            }
+            home {
+                world="minecraft:the_nether"
+                x=-69.09
+                y=68.0
+                z=67.99
+                yaw=57.599998474121094
+                pitch=24.75
+                # Must be an identifier. Example: 'minecraft:cobblestone'
+                icon="minecraft:map"
+                allowed-players=[]
             }
         }
     }
+}
 ```
 
 ### Migration from 1.x.x
