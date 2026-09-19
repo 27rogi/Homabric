@@ -1,5 +1,6 @@
 package space.rogi27.homabric.commands
 
+import com.mojang.authlib.GameProfile
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
@@ -38,7 +39,7 @@ object BaseCommands {
     }
 
     private fun registerBaseCommands(name: String): LiteralArgumentBuilder<CommandSourceStack?>? {
-        return Commands.literal(name).requires(Permissions.require("homabric.base.use", PermissionLevel.ALL)).then(Commands.literal("set").requires(Permissions.require("homabric.base.set", 0))
+        return Commands.literal(name).requires(Permissions.require("homabric.base.use", PermissionLevel.ALL)).then(Commands.literal("set").requires(Permissions.require("homabric.base.set", PermissionLevel.ALL))
                         .then(Commands.argument("home", StringArgumentType.word()).suggests { context: CommandContext<CommandSourceStack>, builder: SuggestionsBuilder? -> suggestPlayerHomes(context, (builder)!!) }
                                 .executes(Command { context: CommandContext<CommandSourceStack> -> set(context) })
                         ).executes { context: CommandContext<CommandSourceStack> -> set(context) }).then(Commands.literal("remove").requires(Permissions.require("homabric.base.remove", PermissionLevel.ALL))
@@ -77,10 +78,14 @@ object BaseCommands {
                 ).executes((Command { context: CommandContext<CommandSourceStack> -> teleport(context, false) }))
     }
 
+    fun isPlayer(context: CommandContext<CommandSourceStack>): Boolean {
+        return context.source.player?.gameProfile is GameProfile
+    }
+
     @Throws(CommandSyntaxException::class)
     fun setIcon(context: CommandContext<CommandSourceStack>): Int {
         val homeName = context.getArgument("home", String::class.java)
-        if (context.source.player === null) {
+        if (!isPlayer(context)) {
             Homabric.logger.error("Unable to get homes because context source is not a player!")
             return 0
         }
