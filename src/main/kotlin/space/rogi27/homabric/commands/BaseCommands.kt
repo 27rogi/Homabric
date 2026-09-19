@@ -41,7 +41,7 @@ object BaseCommands {
     private fun registerBaseCommands(name: String): LiteralArgumentBuilder<CommandSourceStack?>? {
         return Commands.literal(name).requires(Permissions.require("homabric.base.use", PermissionLevel.ALL)).then(Commands.literal("set").requires(Permissions.require("homabric.base.set", PermissionLevel.ALL))
                         .then(Commands.argument("home", StringArgumentType.word()).suggests { context: CommandContext<CommandSourceStack>, builder: SuggestionsBuilder? -> suggestPlayerHomes(context, (builder)!!) }
-                                .executes(Command { context: CommandContext<CommandSourceStack> -> set(context) })
+                                .executes { context: CommandContext<CommandSourceStack> -> set(context) }
                         ).executes { context: CommandContext<CommandSourceStack> -> set(context) }).then(Commands.literal("remove").requires(Permissions.require("homabric.base.remove", PermissionLevel.ALL))
                         .then(Commands.argument("home", StringArgumentType.word()).suggests { context: CommandContext<CommandSourceStack>, builder: SuggestionsBuilder? -> suggestPlayerHomes(context, (builder)!!) }
                                 .executes((Command { context: CommandContext<CommandSourceStack> -> remove(context) }))

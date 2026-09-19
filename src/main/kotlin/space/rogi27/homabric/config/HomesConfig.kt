@@ -28,7 +28,7 @@ object HomesConfig : ConfigFile<HomesConfig.Config>("homes.conf", Config::class.
     fun getOrCreatePlayer(name: String): PlayerObject {
         if (entries.players[name] == null) {
             Homabric.logger.warn("There is no data for $name, creating new entry.")
-            entries.players[name] = PlayerObject().withData(java.util.Map.of())
+            entries.players[name] = PlayerObject().withData(mutableMapOf())
             ConfigManager.saveAndLoadAll()
         }
         return entries.players[name]!!
