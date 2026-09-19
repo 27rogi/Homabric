@@ -1,5 +1,6 @@
 package space.rogi27.homabric.config
 
+import com.mojang.authlib.GameProfile
 import net.minecraft.server.level.ServerPlayer
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
 import org.spongepowered.configurate.objectmapping.meta.Comment
@@ -34,10 +35,9 @@ object HomesConfig : ConfigFile<HomesConfig.Config>("homes.conf", Config::class.
     }
 
     fun getOrCreatePlayer(player: ServerPlayer?): PlayerObject? {
-        if (player === null) {
-            Homabric.logger.error("Unable to get homes because context source is not a player!")
+        if (player?.gameProfile is GameProfile) {
             return null
         }
-        return getOrCreatePlayer(player.gameProfile.name)
+        return getOrCreatePlayer(player!!.gameProfile.name)
     }
 }

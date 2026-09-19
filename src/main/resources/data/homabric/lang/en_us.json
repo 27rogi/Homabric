@@ -23,6 +23,7 @@
   "text.homabric.no_icon": "This icon does not exist!",
   "text.homabric.no_player_disallow": "This player doesn't have access to your home!",
   "text.homabric.no_player_exists": "This player doesn't exist!",
+  "text.homabric.no_player": "Unable to get player data, this command won't run from console!",
   "text.homabric.teleport_done": "Teleported to %s",
   "text.homabric.teleport_canceled": "Your teleportation attempt was canceled because you moved or took damage!",
   "text.homabric.teleport_in_progress": "You will be teleported in %s",
