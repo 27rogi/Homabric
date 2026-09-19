@@ -33,6 +33,12 @@ jobs:
           initial_version: ${{ steps.current.outputs.current }}
           tag_prefix: "${{ github.ref_name }}-v"
 
+      - name: debug version inputs
+        run: |
+          echo "CURRENT=${{ steps.current.outputs.current }}"
+          echo "BRANCH=${{ github.ref_name }}"
+          git tag --list
+
       - name: verify version
         run: |
           VERSION="${{ steps.semver.outputs['version'] }}"
