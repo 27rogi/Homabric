@@ -192,8 +192,8 @@ object AdminCommands {
     fun list(context: CommandContext<CommandSourceStack>): Int {
         val playerData = HomesConfig.getPlayer(context.getArgument("player", String::class.java))
         if (playerData == null) {
-            context.source.sendSuccess({ Component.translatable("text.homabric.no_homes").withStyle(ChatFormatting.YELLOW) }, false)
-            return 1
+            context.source.sendSystemMessage(Component.translatable("text.homabric.no_player_exists").withStyle(ChatFormatting.YELLOW))
+            return 0
         }
         val gui = playerData.getHomesGUI(context.source)
         gui.open()

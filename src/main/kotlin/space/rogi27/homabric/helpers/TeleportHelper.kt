@@ -23,7 +23,7 @@ object TeleportHelper {
     
     fun runTeleport(player: ServerPlayer, onFinish: () -> Unit) {
         // bypass cooldown for players with permission OR if it was disabled in config
-        if ((Permissions.check(player, "homabric.teleport.bypass", 2) || (HomabricConfig.teleportCooldown() == 0))) {
+        if ((Permissions.check(player, "homabric.teleport.bypass", 2) || (HomabricConfig.entries.teleportCooldown == 0))) {
             return onFinish()
         }
         
@@ -35,7 +35,7 @@ object TeleportHelper {
         if (teleportingPlayers[player.stringUUID] != null) {
             return player.sendSystemMessage(translatable("text.homabric.teleport_already_in").withStyle(ChatFormatting.YELLOW), false)
         }
-        teleportingPlayers[player.stringUUID] = HomabricConfig.teleportCooldown()
+        teleportingPlayers[player.stringUUID] = HomabricConfig.entries.teleportCooldown
         
         timer.scheduleAtFixedRate(object:TimerTask() {
             override fun run() {
