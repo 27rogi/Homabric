@@ -35,9 +35,9 @@ object HomesConfig : ConfigFile<HomesConfig.Config>("homes.conf", Config::class.
     }
 
     fun getOrCreatePlayer(player: ServerPlayer?): PlayerObject? {
-        if (player?.gameProfile is GameProfile) {
+        if (player?.gameProfile !is GameProfile) {
             return null
         }
-        return getOrCreatePlayer(player!!.gameProfile.name)
+        return getOrCreatePlayer(player.gameProfile.name)
     }
 }
