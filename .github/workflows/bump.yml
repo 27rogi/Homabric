@@ -33,6 +33,13 @@ jobs:
           initial_version: ${{ steps.current.outputs.current }}
           tag_prefix: "${{ github.ref_name }}-v"
 
+      - name: verify version
+        run: |
+          if [ -z "${{ steps.semver.outputs.version-string }}" ]; then
+            echo "::error::git-auto-semver returned an empty version-string"
+            exit 1
+          fi
+
       - name: update mod_version
         run: |
           sed -i "s/^mod_version=.*/mod_version=${{ steps.semver.outputs.version-string }}/" gradle.properties
