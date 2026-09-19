@@ -51,7 +51,7 @@ jobs:
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
   autorelease:
-    needs: version
+    needs: bump
     runs-on: ubuntu-latest
     steps:
       - name: create github release
