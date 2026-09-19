@@ -15,41 +15,67 @@ object ClassicCommands: RegistrableCommand {
         if (HomabricConfig.entries.classicCommandsEnabled) {
             CommandRegistrationCallback.EVENT.register(CommandRegistrationCallback { dispatcher, _, _ ->
                 dispatcher.register(
-                    Commands.literal("sethome").requires(Permissions.require("homabric.base.set", PermissionLevel.ALL)).then(
-                                Commands.argument("home", StringArgumentType.word()).executes((BaseCommands::set))
-                            ).executes(BaseCommands::set)
-                )
-                dispatcher.register(
-                    Commands.literal("removehome").requires(Permissions.require("homabric.base.remove", PermissionLevel.ALL)).then(
-                        Commands.argument("home", StringArgumentType.word()).suggests(Completables::suggestPlayerHomes).executes((BaseCommands::remove))
-                    )
-                )
-                dispatcher.register(
-                    Commands.literal("playerhome").requires(Permissions.require("homabric.base.others", PermissionLevel.ALL)).then(
-                        Commands.argument("player", EntityArgument.player()).then(
-                            Commands.argument("home", StringArgumentType.word()).suggests(Completables::suggestAllowedHomes).executes((BaseCommands::teleportToAllowed))
+                    Commands.literal("sethome")
+                        .requires(Permissions.require("homabric.base.set", PermissionLevel.ALL))
+                        .executes(BaseCommands::set)
+                        .then(
+                            Commands.argument("home", StringArgumentType.word())
+                                .executes(BaseCommands::set)
                         )
-                    )
                 )
                 dispatcher.register(
-                    Commands.literal("homes").requires(Permissions.require("homabric.base.list", PermissionLevel.ALL)).executes((BaseCommands::list))
+                    Commands.literal("removehome")
+                        .requires(Permissions.require("homabric.base.remove", PermissionLevel.ALL))
+                        .then(
+                            Commands.argument("home", StringArgumentType.word())
+                                .suggests(Completables::suggestPlayerHomes)
+                                .executes(BaseCommands::remove)
+                        )
                 )
                 dispatcher.register(
-                    Commands.literal("allowhome").requires(Permissions.require("homabric.base.allow", PermissionLevel.ALL)).then(
-                                Commands.argument("player", EntityArgument.player()).then(
-                                            Commands.argument("home", StringArgumentType.word()).suggests(Completables::suggestPlayerHomes).executes((BaseCommands::allowHome))
-                                        )
-                            )
-                )
-                dispatcher.register(
-                    Commands.literal("disallowhome").requires(Permissions.require("homabric.base.disallow", PermissionLevel.ALL)).then(
-                        Commands.argument("player", EntityArgument.player()).then(
-                                    Commands.argument("home", StringArgumentType.word()).suggests(Completables::suggestPlayerHomes).executes((BaseCommands::disallowHome))
+                    Commands.literal("playerhome")
+                        .requires(Permissions.require("homabric.base.others", PermissionLevel.ALL))
+                        .then(
+                            Commands.argument("player", EntityArgument.player())
+                                .then(
+                                    Commands.argument("home", StringArgumentType.word())
+                                        .suggests(Completables::suggestAllowedHomes)
+                                        .executes(BaseCommands::teleportToAllowed)
                                 )
-                    )
+                        )
+                )
+                dispatcher.register(
+                    Commands.literal("listhome")
+                        .requires(Permissions.require("homabric.base.list", PermissionLevel.ALL))
+                        .executes(BaseCommands::list)
+                )
+                dispatcher.register(
+                    Commands.literal("allowhome")
+                        .requires(Permissions.require("homabric.base.allow", PermissionLevel.ALL))
+                        .then(
+                            Commands.argument("player", EntityArgument.player())
+                                .then(
+                                    Commands.argument("home", StringArgumentType.word())
+                                        .suggests(Completables::suggestPlayerHomes)
+                                        .executes(BaseCommands::allow)
+                                )
+                        )
+                )
+                dispatcher.register(
+                    Commands.literal("disallowhome")
+                        .requires(Permissions.require("homabric.base.disallow", PermissionLevel.ALL))
+                        .then(
+                            Commands.argument("player", EntityArgument.player())
+                                .then(
+                                    Commands.argument("home", StringArgumentType.word())
+                                        .suggests(Completables::suggestPlayerHomes)
+                                        .executes(BaseCommands::disallow)
+                                )
+                        )
                 )
             })
             Homabric.logger.info("Classic commands enabled!")
         }
+        return true
     }
 }
