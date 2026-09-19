@@ -5,6 +5,7 @@ import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component.literal
 import net.minecraft.network.chat.Component.translatable
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.server.permissions.PermissionLevel
 import space.rogi27.homabric.Homabric
 import space.rogi27.homabric.config.HomabricConfig
 import java.util.*
@@ -23,7 +24,7 @@ object TeleportHelper {
     
     fun runTeleport(player: ServerPlayer, onFinish: () -> Unit) {
         // bypass cooldown for players with permission OR if it was disabled in config
-        if ((Permissions.check(player, "homabric.teleport.bypass", 2) || (HomabricConfig.entries.teleportCooldown == 0))) {
+        if ((Permissions.check(player, "homabric.teleport.bypass", PermissionLevel.GAMEMASTERS) || (HomabricConfig.entries.teleportCooldown == 0))) {
             return onFinish()
         }
         
