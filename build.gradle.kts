@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
 	id("net.fabricmc.fabric-loom")
 	`maven-publish`
@@ -35,6 +36,7 @@ loom {
 
 val makeTransitive: Configuration = configurations.create("makeTransitive") {
 	isTransitive = true
+	exclude(group = "org.jetbrains.kotlin") // exclude anything kotlin related because there is already fabric kotlin
 }
 
 dependencies {
@@ -51,9 +53,7 @@ dependencies {
 	implementation(include("xyz.nucleoid:server-translations-api:${providers.gradleProperty("server_translations_api_version").get()}")!!)
 
 	makeTransitive("org.spongepowered:configurate-hocon:${providers.gradleProperty("configurate_version").get()}")
-	makeTransitive("org.spongepowered:configurate-extra-kotlin:${providers.gradleProperty("configurate_version").get()}") {
-		exclude(group = "org.jetbrains.kotlin")
-	}
+	makeTransitive("org.spongepowered:configurate-extra-kotlin:${providers.gradleProperty("configurate_version").get()}")
 }
 
 makeTransitive.resolvedConfiguration.resolvedArtifacts.forEach { artifact ->
@@ -75,9 +75,6 @@ kotlin {
 }
 
 java {
-	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-	// if it is present.
-	// If you remove this line, sources will not be generated.
 	withSourcesJar()
 
 	sourceCompatibility = JavaVersion.VERSION_25
@@ -108,7 +105,5 @@ publishing {
 		}
 	}
 
-	repositories {
-		// Add repositories to publish to here.
-	}
+	repositories {}
 }
