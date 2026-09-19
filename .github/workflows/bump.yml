@@ -1,62 +1,58 @@
 name: Bump and Release
 on:
   push:
+    branches: ['*-v[0-9]*']
 
 concurrency:
   group: "${{ github.ref }}-${{ github.workflow }}"
   cancel-in-progress: true
 
 jobs:
-  bump:
+  release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    outputs:
-      tag: ${{ steps.tag.outputs.tag }}
     steps:
-      - name: checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: read current version
-        id: current
+      - name: bump version and release
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PAT }}
         run: |
-          CURRENT=$(grep -m1 '^mod_version=' gradle.properties | cut -d'=' -f2 | tr -d '[:space:]')
-          echo "current=$CURRENT" >> "$GITHUB_OUTPUT"
+          MC_VERSION=$(grep -m1 '^minecraft_version=' gradle.properties | cut -d= -f2 | tr -d '[:space:]')
+          CURRENT=$(grep -m1 '^mod_version=' gradle.properties | cut -d= -f2 | tr -d '[:space:]')
 
-      - name: get next version
-        id: semver
-        uses: bitshifted/git-auto-semver@v2
-        with:
-          initial_version: ${{ steps.current.outputs.current }}
-          tag_prefix: "${{ github.ref_name }}-v"
+          PREV_TAG=$(git describe --tags --abbrev=0 --match "*+${MC_VERSION}" 2>/dev/null || echo "")
+          BASE=${PREV_TAG%%+*}
+          [ -z "$BASE" ] && BASE=$CURRENT
+          RANGE=${PREV_TAG:+$PREV_TAG..HEAD}
+          COMMITS=$(git log ${RANGE:-HEAD} --no-merges --pretty=%s)
 
-      - name: update mod_version
-        run: |
-          sed -i "s/^mod_version=.*/mod_version=${{ steps.semver.outputs.version-string }}/" gradle.properties
+          echo "$COMMITS" | grep -qE '^(feat|fix)(\(.+\))?:' || { echo "Nothing to release."; exit 0; }
 
-      - name: commit and tag
-        id: tag
-        run: |
-          TAG="${{ github.ref_name }}-v${{ steps.semver.outputs.version-string }}"
+          BUMP=patch
+          echo "$COMMITS" | grep -qE '^feat(\(.+\))?:' && BUMP=minor
+          echo "$COMMITS" | grep -qE '^[a-zA-Z]+(\(.+\))?!:|BREAKING CHANGE:' && BUMP=major
+
+          IFS=. read -r MAJOR MINOR PATCH <<< "$BASE"
+          case $BUMP in
+            major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+            minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
+            patch) PATCH=$((PATCH + 1)) ;;
+          esac
+          NEW="${MAJOR}.${MINOR}.${PATCH}"
+          TAG="${NEW}+${MC_VERSION}"
+          TITLE="${MC_VERSION}+${NEW}"
+
+          sed -i "s/^mod_version=.*/mod_version=${NEW}/" gradle.properties
+
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add gradle.properties
-          git commit -m "chore: release ${TAG} [skip ci]"
+          git commit -am "release: ${TAG} [skip ci]"
           git tag "$TAG"
-          git push origin HEAD:${{ github.ref_name }}
-          git push origin "$TAG"
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          git push origin "HEAD:${{ github.ref_name }}" "$TAG"
 
-  autorelease:
-    needs: version
-    runs-on: ubuntu-latest
-    steps:
-      - name: create github release
-        uses: softprops/action-gh-release@v2
-        with:
-          token: ${{ secrets.RELEASE_PAT }}
-          tag_name: ${{ needs.version.outputs.tag }}
-          generate_release_notes: true
+          gh release create "$TAG" --title "$TITLE" --notes "$(echo "$COMMITS" | sed 's/^/- /')"
