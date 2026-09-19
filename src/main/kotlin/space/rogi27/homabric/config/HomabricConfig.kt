@@ -44,9 +44,4 @@ object HomabricConfig : ConfigFile<HomabricConfig.Config>("config.conf", Config:
         )
         var permissionsHomeLimit: Map<String, HomePermissionObject> = emptyMap()
     }
-
-    fun teleportCooldown(): Int = entries.teleportCooldown
-    fun areClassicCommandsEnabled(): Boolean = entries.classicCommandsEnabled
-    fun homesLimit(): Int = entries.homesLimit
-    val permissionsHomeLimit: Map<String, HomePermissionObject> get() = entries.permissionsHomeLimit
 }

@@ -48,16 +48,16 @@ class PlayerObject {
     }
     
     fun getHomeLimit(player: CommandSourceStack?): Int {
-        val player = player ?: return HomabricConfig.homesLimit()
+        val player = player ?: return HomabricConfig.entries.homesLimit
 
         if (Permissions.check(player, "homabric.limit.bypass", PermissionLevel.MODERATORS)) {
             return Int.MAX_VALUE
         }
 
-        return HomabricConfig.permissionsHomeLimit
+        return HomabricConfig.entries.permissionsHomeLimit
             .asSequence()
             .filter { (permission, _) -> Permissions.check(player, "homabric.homelimit.$permission") }
-            .maxOfOrNull { (_, config) -> config.maxHomes } ?: HomabricConfig.homesLimit()
+            .maxOfOrNull { (_, config) -> config.maxHomes } ?: HomabricConfig.entries.homesLimit
     }
     
     @Throws(CommandSyntaxException::class)

@@ -12,7 +12,7 @@ import space.rogi27.homabric.helpers.Completables
 
 object ClassicCommands {
     fun init() {
-        if (HomabricConfig.areClassicCommandsEnabled()) {
+        if (HomabricConfig.entries.classicCommandsEnabled) {
             CommandRegistrationCallback.EVENT.register(CommandRegistrationCallback { dispatcher, _, _ ->
                 dispatcher.register(
                     Commands.literal("sethome").requires(Permissions.require("homabric.base.set", PermissionLevel.ALL)).then(
