@@ -10,6 +10,7 @@ import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.server.permissions.PermissionLevel
 import space.rogi27.homabric.Homabric
 import space.rogi27.homabric.config.ConfigManager
 import space.rogi27.homabric.config.HomesConfig
@@ -23,28 +24,28 @@ object AdminCommands {
     fun init() {
         CommandRegistrationCallback.EVENT.register(CommandRegistrationCallback { dispatcher, _, _ ->
             dispatcher.register(
-                Commands.literal("homabric").requires(Permissions.require("homabric.admin.use", 2)).then(
-                    Commands.literal("reload").requires(Permissions.require("homabric.admin.reload", 2)).executes(AdminCommands::reload)
+                Commands.literal("homabric").requires(Permissions.require("homabric.admin.use", PermissionLevel.GAMEMASTERS)).then(
+                    Commands.literal("reload").requires(Permissions.require("homabric.admin.reload", PermissionLevel.GAMEMASTERS)).executes(AdminCommands::reload)
                 ).then(
-                    Commands.literal("teleport").requires(Permissions.require("homabric.admin.teleport", 2)).then(
+                    Commands.literal("teleport").requires(Permissions.require("homabric.admin.teleport", PermissionLevel.GAMEMASTERS)).then(
                         Commands.argument("player", StringArgumentType.word()).suggests(Completables::suggestPlayers).then(
                             Commands.argument("home", StringArgumentType.word()).suggests(Completables::suggestPlayerHomesForAdmin).executes((AdminCommands::teleport))
                         )
                     )
                 ).then(
-                    Commands.literal("set").requires(Permissions.require("homabric.admin.set", 2)).then(
+                    Commands.literal("set").requires(Permissions.require("homabric.admin.set", PermissionLevel.GAMEMASTERS)).then(
                         Commands.argument("player", StringArgumentType.word()).suggests(Completables::suggestPlayers).then(
                             Commands.argument("home", StringArgumentType.word()).suggests(Completables::suggestPlayerHomesForAdmin).executes((AdminCommands::set))
                         )
                     )
                 ).then(
-                    Commands.literal("remove").requires(Permissions.require("homabric.admin.remove", 2)).then(
+                    Commands.literal("remove").requires(Permissions.require("homabric.admin.remove", PermissionLevel.GAMEMASTERS)).then(
                         Commands.argument("player", StringArgumentType.word()).suggests(Completables::suggestPlayers).then(
                             Commands.argument("home", StringArgumentType.word()).suggests(Completables::suggestPlayerHomesForAdmin).executes((AdminCommands::remove))
                         )
                     )
                 ).then(
-                    Commands.literal("list").requires(Permissions.require("homabric.admin.list", 2)).then(
+                    Commands.literal("list").requires(Permissions.require("homabric.admin.list", PermissionLevel.GAMEMASTERS)).then(
                         Commands.argument("player", StringArgumentType.word()).suggests(Completables::suggestPlayers).executes((AdminCommands::list))
                     )
                 ).executes((AdminCommands::info))
