@@ -173,15 +173,14 @@ object BaseCommands {
         if (context.source.player === null) {
             return 0
         }
-        var homeName = "home"
-        try {
-            if (context.getArgument("home", String::class.java) != null) homeName = context.getArgument("home", String::class.java)
+        val homeName = try {
+            context.getArgument("home", String::class.java)
         } catch (_: Exception) {
-            Homabric.logger.warn("Using command without name, referencing home")
+            "home"
         }
         val player: PlayerObject? = getOrCreatePlayer(context.source.player)
         if (player != null) {
-            if (player.isLimitReached(context.source)) {
+            if (player.checkHomeLimit(context.source)) {
                 context.source.sendSystemMessage(
                     Component.translatable("text.homabric.home_limit_reached").withStyle(ChatFormatting.RED)
                 )
@@ -316,7 +315,7 @@ object BaseCommands {
                     Component.translatable("text.homabric.no_player_disallow").withStyle(ChatFormatting.RED)
                 )
             }
-            PlayerObject.HomeDisallowResult.HOME_ALLOWED -> {
+            PlayerObject.HomeDisallowResult.HOME_DISALLOWED -> {
                 context.source.sendSystemMessage(
                     Component.translatable(
                         "text.homabric.disallowed", Component.literal(homeName).withStyle(
