@@ -1,0 +1,62 @@
+name: Bump and Release
+on:
+  push:
+
+concurrency:
+  group: "${{ github.ref }}-${{ github.workflow }}"
+  cancel-in-progress: true
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: read current version
+        id: current
+        run: |
+          CURRENT=$(grep -m1 '^mod_version=' gradle.properties | cut -d'=' -f2 | tr -d '[:space:]')
+          echo "current=$CURRENT" >> "$GITHUB_OUTPUT"
+
+      - name: get next version
+        id: semver
+        uses: bitshifted/git-auto-semver@v2
+        with:
+          initial_version: ${{ steps.current.outputs.current }}
+          tag_prefix: "${{ github.ref_name }}-v"
+
+      - name: update mod_version
+        run: |
+          sed -i "s/^mod_version=.*/mod_version=${{ steps.semver.outputs.version-string }}/" gradle.properties
+
+      - name: commit and tag
+        id: tag
+        run: |
+          TAG="${{ github.ref_name }}-v${{ steps.semver.outputs.version-string }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add gradle.properties
+          git commit -m "chore: release ${TAG} [skip ci]"
+          git tag "$TAG"
+          git push origin HEAD:${{ github.ref_name }}
+          git push origin "$TAG"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+  autorelease:
+    needs: version
+    runs-on: ubuntu-latest
+    steps:
+      - name: create github release
+        uses: softprops/action-gh-release@v2
+        with:
+          token: ${{ secrets.RELEASE_PAT }}
+          tag_name: ${{ needs.version.outputs.tag }}
+          generate_release_notes: true
