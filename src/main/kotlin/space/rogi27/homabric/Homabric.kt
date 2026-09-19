@@ -20,9 +20,7 @@ class Homabric:ModInitializer {
 
         homesConfig.load()
 
-        BaseCommands.init()
-        AdminCommands.init()
-        ClassicCommands.init()
+        arrayOf(BaseCommands, AdminCommands, ClassicCommands).forEach { commands -> commands.register() }
     }
     
     companion object {

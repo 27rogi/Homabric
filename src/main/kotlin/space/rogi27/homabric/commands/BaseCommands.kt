@@ -30,8 +30,8 @@ import space.rogi27.homabric.helpers.TeleportHelper
 import space.rogi27.homabric.objects.HomeObject
 import space.rogi27.homabric.objects.PlayerObject
 
-object BaseCommands {
-    fun init() {
+object BaseCommands: RegistrableCommand {
+    override fun register(): Boolean {
         CommandRegistrationCallback.EVENT.register(CommandRegistrationCallback { dispatcher, _, _ ->
             val aliases = HomabricConfig.entries.commandAliases
             aliases.forEach { alias -> dispatcher.register(registerBaseCommands(alias)) }
