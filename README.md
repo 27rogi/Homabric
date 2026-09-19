@@ -1,5 +1,5 @@
 <div align="center">
-<img src="https://raw.githubusercontent.com/rogi27/Homabric/main/src/main/resources/assets/homabric/icon.png" height="128" />
+<img src="https://raw.githubusercontent.com/27rogi/Homabric/master/src/main/resources/assets/homabric/icon.png" height="128" />
 
 # Homabric
 
