@@ -87,18 +87,18 @@ This file stores Homabric settings.
 ```shell
 # Do not touch this value, it allows mod to
 # check if config file is outdated or not.
-configVersion=3
+config-version=3
 # This option enables alternative command variants like /sethome, /removehome and etc.
-enableClassicCommands=true
+enable-classic-commands=true
 # Sets the maximum amount of homes per player.
-homesLimit=21
+homes-limit=21
 # You can define permissions that will override home limit for the players if they have them.
 # Permission names are transformed to permissions like 'homabric.homelimit.<permissionName>'
 # Example permission: vip: { max-homes=6 }
-permissionsHomeLimit {}
+permissions-home-limit {}
 # Sets the timeout in seconds before player will be teleported home.
 # You can disable this feature by setting it to 0.
-teleportCooldown=5
+teleport-cooldown=5
 ```
 
 ### homabric.homes.conf
