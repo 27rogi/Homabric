@@ -20,7 +20,6 @@ import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
 import net.minecraft.server.permissions.PermissionLevel
 import net.minecraft.world.item.ItemStack
-import space.rogi27.homabric.Homabric
 import space.rogi27.homabric.config.ConfigManager
 import space.rogi27.homabric.config.HomabricConfig
 import space.rogi27.homabric.config.HomesConfig.getOrCreatePlayer
@@ -87,7 +86,7 @@ object BaseCommands {
     fun setIcon(context: CommandContext<CommandSourceStack>): Int {
         val homeName = context.getArgument("home", String::class.java)
         if (!isPlayer(context)) {
-            Homabric.logger.error("Unable to get homes because context source is not a player!")
+            context.source.sendSystemMessage(Component.translatable("text.homabric.no_player").withStyle(ChatFormatting.RED))
             return 0
         }
         val home: HomeObject? = getOrCreatePlayer(context.source.player!!.gameProfile.name).getHome(homeName)
@@ -121,11 +120,11 @@ object BaseCommands {
         if (hasName) {
             if (context.getArgument("home", String::class.java).isNotEmpty()) homeName = context.getArgument("home", String::class.java)
         }
-        if (context.source.player === null) {
-            Homabric.logger.error("Unable to get homes because context source is not a player!")
+        val player: PlayerObject? = getOrCreatePlayer(context.source.player)
+        if (player === null) {
+            context.source.sendSystemMessage(Component.translatable("text.homabric.no_player").withStyle(ChatFormatting.RED))
             return 0
         }
-        val player: PlayerObject = getOrCreatePlayer(context.source.player!!.gameProfile.name)
         val home: HomeObject? = player.getHome(homeName)
 
         if (home == null) {
@@ -176,7 +175,8 @@ object BaseCommands {
 
     @Throws(CommandSyntaxException::class)
     fun set(context: CommandContext<CommandSourceStack>): Int {
-        if (context.source.player === null) {
+        if (!isPlayer(context)) {
+            context.source.sendSystemMessage(Component.translatable("text.homabric.no_player").withStyle(ChatFormatting.RED))
             return 0
         }
         val homeName = try {
@@ -217,15 +217,12 @@ object BaseCommands {
 
     @Throws(CommandSyntaxException::class)
     fun remove(context: CommandContext<CommandSourceStack>): Int {
-        if (context.source.player === null) {
+        if (!isPlayer(context)) {
+            context.source.sendSystemMessage(Component.translatable("text.homabric.no_player").withStyle(ChatFormatting.RED))
             return 0
         }
         val homeName = context.getArgument("home", String::class.java)
-        val player = getOrCreatePlayer(context.source.player)
-        if (player === null) {
-            Homabric.logger.error("Player not found")
-            return 0
-        }
+        val player = getOrCreatePlayer(context.source.player!!.gameProfile.name)
         when (player.removeHome(homeName)) {
             PlayerObject.HomeRemoveResult.NO_HOME -> {
                 context.source.sendSystemMessage(Component.translatable("text.homabric.no_home").withStyle(ChatFormatting.RED))
@@ -247,7 +244,7 @@ object BaseCommands {
     fun list(context: CommandContext<CommandSourceStack>): Int {
         val player: PlayerObject? = getOrCreatePlayer(context.source.player)
         if (player === null) {
-            Homabric.logger.error("Player not found")
+            context.source.sendSystemMessage(Component.translatable("text.homabric.no_player").withStyle(ChatFormatting.RED))
             return 0
         }
         val gui: SimpleGui = player.getHomesGUI(context.source)
@@ -259,7 +256,7 @@ object BaseCommands {
     fun allowHome(context: CommandContext<CommandSourceStack>): Int {
         val player: PlayerObject? = getOrCreatePlayer(context.source.player)
         if (player === null) {
-            Homabric.logger.error("Player not found")
+            context.source.sendSystemMessage(Component.translatable("text.homabric.no_player").withStyle(ChatFormatting.RED))
             return 0
         }
         val homeName = context.getArgument("home", String::class.java)
@@ -302,7 +299,7 @@ object BaseCommands {
     fun disallowHome(context: CommandContext<CommandSourceStack>): Int {
         val player: PlayerObject? = getOrCreatePlayer(context.source.player)
         if (player === null) {
-            Homabric.logger.error("Player not found")
+            context.source.sendSystemMessage(Component.translatable("text.homabric.no_player").withStyle(ChatFormatting.RED))
             return 0
         }
         val homeName = context.getArgument("home", String::class.java)
