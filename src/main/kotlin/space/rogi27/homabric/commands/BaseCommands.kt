@@ -1,6 +1,7 @@
 package space.rogi27.homabric.commands
 
 import com.mojang.brigadier.Command
+import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
@@ -13,11 +14,10 @@ import net.minecraft.ChatFormatting
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 import net.minecraft.commands.arguments.EntityArgument
-import net.minecraft.commands.arguments.IdentifierArgument
+import net.minecraft.commands.arguments.ResourceLocationArgument
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.Identifier
-import net.minecraft.server.permissions.PermissionLevel
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
 import space.rogi27.homabric.config.ConfigManager
 import space.rogi27.homabric.config.HomabricConfig
@@ -29,6 +29,7 @@ import space.rogi27.homabric.helpers.Completables.suggestOnlinePlayerStrings
 import space.rogi27.homabric.helpers.Completables.suggestPlayerHomes
 import space.rogi27.homabric.objects.HomeObject
 import space.rogi27.homabric.objects.PlayerObject
+import space.rogi27.homabric.polyfills.PermissionLevel
 
 object BaseCommands: RegistrableCommand {
     override fun register(): Boolean {
@@ -95,7 +96,7 @@ object BaseCommands: RegistrableCommand {
                         Commands.argument("home", StringArgumentType.word())
                             .suggests { context, suggestionsBuilder -> suggestPlayerHomes(context, suggestionsBuilder) }
                             .then(
-                                Commands.argument("item", IdentifierArgument.id())
+                                Commands.argument("item", ResourceLocationArgument.id())
                                     .executes { context -> setIcon(context) }
                             )
                     )
@@ -136,7 +137,7 @@ object BaseCommands: RegistrableCommand {
             context.source.sendSystemMessage(Component.translatable("text.homabric.no_home").withStyle(ChatFormatting.RED))
             return 1
         }
-        when (home.setIcon(context.getArgument("item", Identifier::class.java))) {
+        when (home.setIcon(context.getArgument("item", ResourceLocation::class.java))) {
             HomeObject.IconResult.WRONG_ICON -> {
                 context.source.sendSystemMessage(Component.translatable("text.homabric.no_icon"))
             }
@@ -145,9 +146,9 @@ object BaseCommands: RegistrableCommand {
                     Component.translatable(
                         "text.homabric.icon_changed", Component.literal(homeName).withStyle(
                             ChatFormatting.WHITE
-                        ), ItemStack(BuiltInRegistries.ITEM[context.getArgument(
-                            "item", Identifier::class.java
-                        )].get().value()).itemName.copy().withStyle(ChatFormatting.AQUA)
+                        ), ItemStack(BuiltInRegistries.ITEM.get(context.getArgument(
+                            "item", ResourceLocation::class.java
+                        ))).displayName.copy().withStyle(ChatFormatting.AQUA)
                     ).withStyle(ChatFormatting.GREEN)
                 )
             }

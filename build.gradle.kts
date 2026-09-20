@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-	id("net.fabricmc.fabric-loom")
+	id("net.fabricmc.fabric-loom-remap")
 	`maven-publish`
 	id("org.jetbrains.kotlin.jvm")
 }
@@ -34,29 +34,30 @@ loom {
 	}
 }
 
-val makeTransitive: Configuration = configurations.create("makeTransitive") {
+val transitiveImplementation: Configuration = configurations.create("transitiveImplementation") {
 	isTransitive = true
 	exclude(group = "org.jetbrains.kotlin") // exclude anything kotlin related because there is already fabric kotlin
 }
 
 dependencies {
 	minecraft("com.mojang:minecraft:${providers.gradleProperty("minecraft_version").get()}")
-	implementation("net.fabricmc:fabric-loader:${providers.gradleProperty("loader_version").get()}")
+	mappings(loom.officialMojangMappings())
+	modImplementation("net.fabricmc:fabric-loader:${providers.gradleProperty("loader_version").get()}")
 
 	// fabric api without bundling
-	compileOnly("net.fabricmc.fabric-api:fabric-api:${providers.gradleProperty("fabric_api_version").get()}")
-	localRuntime("net.fabricmc.fabric-api:fabric-api:${providers.gradleProperty("fabric_api_version").get()}")
+	modCompileOnly("net.fabricmc.fabric-api:fabric-api:${providers.gradleProperty("fabric_api_version").get()}")
+	modLocalRuntime("net.fabricmc.fabric-api:fabric-api:${providers.gradleProperty("fabric_api_version").get()}")
 
-	implementation(include("net.fabricmc:fabric-language-kotlin:${providers.gradleProperty("fabric_kotlin_version").get()}")!!)
-	implementation(include("me.lucko:fabric-permissions-api:${providers.gradleProperty("fabric_permissions_api_version").get()}")!!)
-	implementation(include("eu.pb4:sgui:${providers.gradleProperty("sgui_version").get()}")!!)
-	implementation(include("xyz.nucleoid:server-translations-api:${providers.gradleProperty("server_translations_api_version").get()}")!!)
+	modImplementation(include("net.fabricmc:fabric-language-kotlin:${providers.gradleProperty("fabric_kotlin_version").get()}")!!)
+	modImplementation(include("me.lucko:fabric-permissions-api:${providers.gradleProperty("fabric_permissions_api_version").get()}")!!)
+	modImplementation(include("eu.pb4:sgui:${providers.gradleProperty("sgui_version").get()}")!!)
+	modImplementation(include("xyz.nucleoid:server-translations-api:${providers.gradleProperty("server_translations_api_version").get()}")!!)
 
-	makeTransitive("org.spongepowered:configurate-hocon:${providers.gradleProperty("configurate_version").get()}")
-	makeTransitive("org.spongepowered:configurate-extra-kotlin:${providers.gradleProperty("configurate_version").get()}")
+	transitiveImplementation("org.spongepowered:configurate-hocon:${providers.gradleProperty("configurate_version").get()}")
+	transitiveImplementation("org.spongepowered:configurate-extra-kotlin:${providers.gradleProperty("configurate_version").get()}")
 }
 
-makeTransitive.resolvedConfiguration.resolvedArtifacts.forEach { artifact ->
+transitiveImplementation.resolvedConfiguration.resolvedArtifacts.forEach { artifact ->
 	val id = artifact.moduleVersion.id
 	val notation = "${id.group}:${id.name}:${id.version}"
 	dependencies.add("include", notation)
@@ -65,20 +66,20 @@ makeTransitive.resolvedConfiguration.resolvedArtifacts.forEach { artifact ->
 
 tasks.withType<JavaCompile>().configureEach {
 	options.encoding = "UTF-8"
-	options.release = 25
+	options.release = 21
 }
 
 kotlin {
 	compilerOptions {
-		jvmTarget = JvmTarget.JVM_25
+		jvmTarget = JvmTarget.JVM_21
 	}
 }
 
 java {
 	withSourcesJar()
 
-	sourceCompatibility = JavaVersion.VERSION_25
-	targetCompatibility = JavaVersion.VERSION_25
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
 }
 
 tasks.processResources {

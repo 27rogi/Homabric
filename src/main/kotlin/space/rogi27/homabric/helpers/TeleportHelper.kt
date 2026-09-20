@@ -5,9 +5,9 @@ import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component.literal
 import net.minecraft.network.chat.Component.translatable
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.server.permissions.PermissionLevel
 import space.rogi27.homabric.Homabric
 import space.rogi27.homabric.config.HomabricConfig
+import space.rogi27.homabric.polyfills.PermissionLevel
 import java.util.*
 
 object TeleportHelper {

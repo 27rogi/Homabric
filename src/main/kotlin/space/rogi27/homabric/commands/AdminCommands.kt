@@ -10,7 +10,6 @@ import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.server.permissions.PermissionLevel
 import space.rogi27.homabric.Homabric
 import space.rogi27.homabric.config.ConfigManager
 import space.rogi27.homabric.config.HomabricConfig
@@ -20,6 +19,7 @@ import space.rogi27.homabric.helpers.Completables
 import space.rogi27.homabric.helpers.TeleportHelper
 import space.rogi27.homabric.objects.HomeObject
 import space.rogi27.homabric.objects.PlayerObject
+import space.rogi27.homabric.polyfills.PermissionLevel
 
 object AdminCommands: RegistrableCommand {
     override fun register(): Boolean {

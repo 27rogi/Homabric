@@ -5,10 +5,10 @@ import me.lucko.fabric.api.permissions.v0.Permissions
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.minecraft.commands.Commands
 import net.minecraft.commands.arguments.EntityArgument
-import net.minecraft.server.permissions.PermissionLevel
 import space.rogi27.homabric.Homabric
 import space.rogi27.homabric.config.HomabricConfig
 import space.rogi27.homabric.helpers.Completables
+import space.rogi27.homabric.polyfills.PermissionLevel
 
 object ClassicCommands: RegistrableCommand {
     override fun register(): Boolean {

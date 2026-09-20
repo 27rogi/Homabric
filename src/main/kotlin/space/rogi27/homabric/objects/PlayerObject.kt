@@ -1,28 +1,24 @@
 package space.rogi27.homabric.objects
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException
-import eu.pb4.sgui.api.ClickType
 import eu.pb4.sgui.api.elements.GuiElementBuilder
 import eu.pb4.sgui.api.gui.SimpleGui
-import eu.pb4.sgui.api.gui.SlotBasedGui
 import me.lucko.fabric.api.permissions.v0.Permissions
 import net.minecraft.ChatFormatting
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.Identifier
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.server.permissions.PermissionLevel
-import net.minecraft.world.inventory.ContainerInput
 import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
-import org.spongepowered.configurate.objectmapping.meta.Comment
 import space.rogi27.homabric.config.ConfigManager
 import space.rogi27.homabric.config.HomabricConfig
 import space.rogi27.homabric.config.HomesConfig
 import space.rogi27.homabric.helpers.TeleportHelper
+import space.rogi27.homabric.polyfills.PermissionLevel
 import java.util.concurrent.atomic.AtomicInteger
 
 @ConfigSerializable
@@ -87,16 +83,16 @@ class PlayerObject {
     fun createOrUpdateHome(player: CommandSourceStack, homeName: String): HomeCreationResult {
         var result = HomeCreationResult.HOME_CREATED
         val home = homes!![homeName]
-        var icon: Identifier? = null
+        var icon: ResourceLocation? = null
         var allowedPlayers: ArrayList<String>? = ArrayList()
         if (home != null) {
-            icon = home.icon?.let { Identifier.tryParse(it) }
+            icon = home.icon?.let { ResourceLocation.tryParse(it) }
             if (home.allowedPlayers!!.isNotEmpty()) allowedPlayers = home.allowedPlayers
             result = HomeCreationResult.HOME_UPDATED
         }
         homes?.set(
             homeName, HomeObject().withData(
-                player.level.dimension().identifier().toString(), player.position.x, player.position.y, player.position.z, player.player!!.yRot, player.player!!.xRot, allowedPlayers, icon
+                player.level.dimension()!!.location().toString(), player.position.x, player.position.y, player.position.z, player.player!!.yRot, player.player!!.xRot, allowedPlayers, icon
             )
         )
         ConfigManager.saveAndLoadAll()
@@ -128,10 +124,10 @@ class PlayerObject {
                     ).withStyle(ChatFormatting.GREEN)
                 )
             )
-            val slotItemId = data.icon?.let { Identifier.tryParse(it) }
+            val slotItemId = data.icon?.let { ResourceLocation.tryParse(it) }
             val slotItem = GuiElementBuilder.from(
                 ItemStack(BuiltInRegistries.ITEM.getOptional(slotItemId).orElse(Items.AIR)!!)
-            ).setName(Component.literal(key!!).withStyle(ChatFormatting.YELLOW)).setLore(lore).setCallback { _: Int, _: ClickType?, _: ContainerInput?, _: SlotBasedGui ->
+            ).setName(Component.literal(key!!).withStyle(ChatFormatting.YELLOW)).setLore(lore).setCallback { _, _, _ ->
                 gui.close()
                 TeleportHelper.runTeleport(source.player!!, fun() {
                     data.teleportPlayer(source.player!!)
