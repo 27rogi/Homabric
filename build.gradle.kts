@@ -46,8 +46,8 @@ dependencies {
 	// fabric api without bundling
 	compileOnly("net.fabricmc.fabric-api:fabric-api:${providers.gradleProperty("fabric_api_version").get()}")
 	localRuntime("net.fabricmc.fabric-api:fabric-api:${providers.gradleProperty("fabric_api_version").get()}")
-
-	implementation(include("net.fabricmc:fabric-language-kotlin:${providers.gradleProperty("fabric_kotlin_version").get()}")!!)
+	implementation("net.fabricmc:fabric-language-kotlin:${providers.gradleProperty("fabric_kotlin_version").get()}")
+	
 	implementation(include("me.lucko:fabric-permissions-api:${providers.gradleProperty("fabric_permissions_api_version").get()}")!!)
 	implementation(include("eu.pb4:sgui:${providers.gradleProperty("sgui_version").get()}")!!)
 	implementation(include("xyz.nucleoid:server-translations-api:${providers.gradleProperty("server_translations_api_version").get()}")!!)
